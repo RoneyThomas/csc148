@@ -8,7 +8,7 @@ and select 'welcome' in the popup menu.
 After you've run this program for the first time, you'll be able to re-run it
 easily by pressing the green ▶ arrow in the toolbar.
 """
-# TODO: fill in the string with your name, and then delete this TODO comment.
+
 MY_NAME = 'Roney'
 
 
