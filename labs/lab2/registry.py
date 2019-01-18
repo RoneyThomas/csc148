@@ -1,19 +1,12 @@
-from enum import Enum
-
-
-class SpeedCategory(Enum):
-    under_20, under_30, under_40, over_40 = range(4)
-
-
 class Runner:
     """
     A class representing a runner
     """
     _name: str
     _email: str
-    _speed: SpeedCategory
+    _speed: str
 
-    def __init__(self, name: str, email: str, speed: SpeedCategory):
+    def __init__(self, name: str, email: str, speed: str):
         """
 
         :param name: name of the runner
@@ -42,7 +35,7 @@ class Runner:
         return self._email
 
     @property
-    def speed(self) -> SpeedCategory:
+    def speed(self) -> Str:
         return self._speed
 
     def update_email(self, email: str) -> None:
