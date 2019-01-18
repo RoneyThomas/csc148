@@ -138,24 +138,26 @@ class User:
         new_tweet = Tweet(self.userid, date.today(), message)
         self.tweets.append(new_tweet)
 
-    def retweet(self, new_user: str, tweet: Tweet, new_date: date) -> None:
+    def retweet(self, tweet: Tweet, new_date: date) -> None:
         """Return a copy of the given tweet with the new user and date.
 
         The new tweet has 0 likes, regardless of the number of likes of the
         original tweet.
 
         >>> t1 = Tweet('David', date(2017, 8, 19), 'David is so cool!')
-        >>> t2 = retweet('Diane', t1, date(2017, 8, 20))
-        >>> t2.content
+        >>> u1 = User('Diane', 'Roller coaster fanatic')
+        >>> u1.retweet(t1, date(2017, 8, 20))
+        >>> u1.tweets[0].content
         'David is so cool!'
-        >>> t2.userid
+        >>> u1.tweets[0].userid
         'Diane'
-        >>> t2.created_at
+        >>> u1.tweets[0].created_at
         datetime.date(2017, 8, 20)
         """
-        new_retweet = Tweet(new_user, new_date, tweet.content)
+        new_retweet = Tweet(self.userid, new_date, tweet.content)
         # TODO Should we create new List for retweets or use Tweets List???
         self.tweets.append(new_retweet)
+
 
     def follow(self, other: User) -> None:
         """Record that this User follows <other>.
