@@ -114,7 +114,7 @@ def test_simple_jurisdiction_party_history() -> None:
 def test_simple_jurisdiction_riding_changes() -> None:
     """Test Jurisdiction.riding_changes with two Elections."""
     j = simple_jurisdiction_setup()
-    res2 = open('sample_data/toronto-stpauls.csv')
+    res2 = open('../data/toronto-stpauls.csv')
     j.read_results(2004, 5, 15, res2)
     res2.close()
     assert j.riding_changes() == [({"St. Paul's"}, {"Toronto--St. Paul's"})]
