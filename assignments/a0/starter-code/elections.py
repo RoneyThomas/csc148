@@ -56,6 +56,10 @@ class Election:
     _parties: List[str]
     _results: Dict[str, Dict[str, int]]
 
+    @property
+    def ridings(self):
+        return self._ridings
+
     def __init__(self, d: date) -> None:
         """Initialize a new election on date d and with no votes recorded so
         far.
@@ -65,7 +69,10 @@ class Election:
         datetime.date(2000, 2, 8)
         """
         # TODO: implement this method!
-        pass
+        self._d = d
+        self._ridings = list()
+        self._parties = list()
+        self._results = dict()
 
     def ridings_of(self) -> List[str]:
         """Return the ridings in which votes have been recorded in this
@@ -80,7 +87,7 @@ class Election:
         ['r1', 'r2']
         """
         # TODO: implement this method!
-        pass
+        return self._ridings
 
     def update_results(self, riding: str, party: str, votes: int) -> None:
         """Update this election to reflect that in <riding>, <party> received
@@ -99,8 +106,22 @@ class Election:
         >>> e.results_for('r1', 'ndp')
         1001
         """
+        if riding[0]=='"' and riding[-1]=='"':
+            riding = riding[1:-1]
+        if party[0]=='"' and party[-1]=='"':
+            party = party[1:-1]
         # TODO: implement this method!
-        pass
+        if riding not in self._ridings:
+            self._ridings.append(riding)
+        if party not in self._parties:
+            self._parties.append(party)
+        if riding not in self._results:
+            self._results[riding] = {}
+            self._results[riding][party] = votes
+        elif party not in self._results[riding].keys():
+            self._results[riding][party] = votes
+        else:
+            self._results[riding][party] += votes
 
     def read_results(self, instream: IO[str]) -> None:
         """Update this election with the results in instream.
@@ -109,7 +130,12 @@ class Election:
         in the A0 handout.
         """
         # TODO: implement this method!
-        pass
+        splits = instream.read().split(',')
+        # Should i close this or not?
+        instream.close()
+        # for line in instream:
+        #     print(line)
+        self.update_results(splits[1], splits[13], int(splits[17]))
 
     def results_for(self, riding: str, party: str) -> Optional[int]:
         """Return the number of votes received in <riding> by <party> in
@@ -130,7 +156,7 @@ class Election:
         1
         """
         # TODO: implement this method!
-        pass
+        return self._results[riding][party]
 
     def riding_winners(self, riding: str) -> List[str]:
         """Return the winners, in <riding>, of this election.
@@ -150,7 +176,11 @@ class Election:
         ['pc']
         """
         # TODO: implement this method!
-        pass
+        sorted_results = sorted(self._results[riding].items(),
+                                key=lambda x: x[1])
+        sorted_results = [x[0] for x in sorted_results if
+                          x[1] == sorted_results[-1][1]]
+        return sorted_results
 
     def popular_vote(self) -> Dict[str, int]:
         """Return the total number of votes earned by each party, across
@@ -171,7 +201,11 @@ class Election:
         True
         """
         # TODO: implement this method!
-        pass
+        popular_vote: Dict[str: int] = dict.fromkeys(self._parties, 0)
+        for x in self._results:
+            for y in self._results[x]:
+                popular_vote[y] += self._results[x][y]
+        return popular_vote
 
     def party_seats(self) -> Dict[str, int]:
         """Return the number of ridings that each party won in this election.
@@ -192,7 +226,11 @@ class Election:
         True
         """
         # TODO: implement this method!
-        pass
+        party_seats: Dict[str: int] = dict.fromkeys(self._parties, 0)
+        for riding in self._ridings:
+            for winners in self.riding_winners(riding):
+                party_seats[winners] += 1
+        return party_seats
 
     def election_winners(self) -> List[str]:
         """Return the party (or parties, in the case of a tie) that won the
@@ -213,7 +251,11 @@ class Election:
         ['pc']
         """
         # TODO: implement this method!
-        pass
+        seats = sorted(self.party_seats().items(),
+                       key=lambda x: x[1])
+        sorted_results = [x[0] for x in seats if
+                          x[1] == seats[-1][1]]
+        return sorted_results
 
 
 class Jurisdiction:
@@ -246,7 +288,8 @@ class Jurisdiction:
         {}
         """
         # TODO: implement this method!
-        pass
+        self._name = name
+        self._history = {}
 
     def read_results(self, year: int, month: int, day: int, instream: IO[str]) \
             -> None:
@@ -256,7 +299,15 @@ class Jurisdiction:
         add to them.
         """
         # TODO: implement this method!
-        pass
+        d = date(year, month, day)
+        if d not in self._history.keys():
+            election = Election(d)
+            election.read_results(instream)
+            # self._history.update({d, election})
+            # Which is correct
+            self._history[d] = election
+        else:
+            self._history[d].read_results(instream)
 
     def party_wins(self, party: str) -> List[date]:
         """Return a list of all dates on which <party> won
@@ -291,7 +342,12 @@ class Jurisdiction:
         [datetime.date(2003, 5, 16), datetime.date(2003, 6, 1)]
         """
         # TODO: implement this method!
-        pass
+        # Elaborated version
+        # for date, election in self._history:
+        #     if party in election.election_winners():
+        #         date
+        return [key for key in self._history if
+                party in self._history[key].election_winners()]
 
     def party_history(self, party: str) -> Dict[date, float]:
         """Return this party's percentage of the popular vote
@@ -326,7 +382,12 @@ class Jurisdiction:
         True
         """
         # TODO: implement this method!
-        pass
+        d = {}
+        for date_key in self._history:
+            popular = self._history[date_key].popular_vote()
+            d[date_key] = self._history[date_key].popular_vote()[party] / sum(
+                popular.values())
+        return d
 
     def riding_changes(self) -> List[Tuple[Set[str], Set[str]]]:
         """Return the changes in ridings across elections in this jurisdiction.
@@ -356,21 +417,32 @@ class Jurisdiction:
         >>> j.riding_changes() == [({'r2'}, {'r3'})]
         True
         """
+        all_ridings = []
+        riding_change: List[Tuple[Set[str], Set[str]]] = []
         # TODO: implement this method!
-        pass
+        for election in self._history:
+            all_ridings.append(set(self._history[election].ridings))
+
+        for n in range(0, len(all_ridings) - 1):
+            riding_added = all_ridings[n + 1] - all_ridings[n]
+            riding_removed = all_ridings[n] - all_ridings[n + 1]
+            riding_change.append((riding_removed, riding_added))
+        return riding_change
 
 
 if __name__ == '__main__':
     import python_ta
-    python_ta.check_all(config={
-        'allowed-io': ['Election.read_results', 'Jurisdiction.read_results'],
-        'allowed-import-modules': [
-            'doctest', 'python_ta', 'datetime', 'typing'
-        ],
-        'max-attributes': 15
-    })
+
+    # python_ta.check_all(config={
+    #     'allowed-io': ['Election.read_results', 'Jurisdiction.read_results'],
+    #     'allowed-import-modules': [
+    #         'doctest', 'python_ta', 'datetime', 'typing'
+    #     ],
+    #     'max-attributes': 15
+    # })
 
     import doctest
+
     doctest.testmod()
 
     # An example of reading election results from a file.
