@@ -430,7 +430,7 @@ if __name__ == '__main__':
     doctest.testmod()
 
     # An example of reading election results from a file.
-    c = Jurisdiction('Canada')
-    c.read_results(2015, 2, 3, open('../data/parkdale-highpark.csv'))
-    c.read_results(2015, 2, 3, open('../data/nunavut.csv'))
-    c.read_results(2015, 2, 3, open('../data/labrador.csv'))
+    # c = Jurisdiction('Canada')
+    # c.read_results(2015, 2, 3, open('../data/parkdale-highpark.csv'))
+    # c.read_results(2015, 2, 3, open('../data/nunavut.csv'))
+    # c.read_results(2015, 2, 3, open('../data/labrador.csv'))
