@@ -103,7 +103,7 @@ class SalariedEmployee(Employee):
         >>> e.get_monthly_payment()
         10000.0
         """
-        return round(self.salary / 12, 4)
+        return round(self.salary / 12, 2)
 
 
 class HourlyEmployee(Employee):
@@ -147,7 +147,7 @@ class HourlyEmployee(Employee):
         >>> e.get_monthly_payment()
         62.5
         """
-        return round(self.hours_per_month * self.hourly_wage, 4)
+        return round(self.hours_per_month * self.hourly_wage, 2)
 
 
 class Company:
