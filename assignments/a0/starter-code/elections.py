@@ -56,10 +56,6 @@ class Election:
     _parties: List[str]
     _results: Dict[str, Dict[str, int]]
 
-    @property
-    def ridings(self):
-        return self._ridings
-
     def __init__(self, d: date) -> None:
         """Initialize a new election on date d and with no votes recorded so
         far.
@@ -68,7 +64,6 @@ class Election:
         >>> e._d
         datetime.date(2000, 2, 8)
         """
-        # TODO: implement this method!
         self._d = d
         self._ridings = list()
         self._parties = list()
@@ -86,7 +81,6 @@ class Election:
         >>> e.ridings_of()
         ['r1', 'r2']
         """
-        # TODO: implement this method!
         return self._ridings
 
     def update_results(self, riding: str, party: str, votes: int) -> None:
@@ -106,11 +100,10 @@ class Election:
         >>> e.results_for('r1', 'ndp')
         1001
         """
-        if riding[0]=='"' and riding[-1]=='"':
+        if riding[0] == '"' and riding[-1] == '"':
             riding = riding[1:-1]
-        if party[0]=='"' and party[-1]=='"':
+        if party[0] == '"' and party[-1] == '"':
             party = party[1:-1]
-        # TODO: implement this method!
         if riding not in self._ridings:
             self._ridings.append(riding)
         if party not in self._parties:
@@ -129,13 +122,14 @@ class Election:
         Precondition: instream is an open csv file, in the format defined
         in the A0 handout.
         """
-        # TODO: implement this method!
-        splits = instream.read().split(',')
-        # Should i close this or not?
-        instream.close()
-        # for line in instream:
-        #     print(line)
-        self.update_results(splits[1], splits[13], int(splits[17]))
+        with instream as stream:
+            for line in stream:
+                splits = line.split(',')
+                try:
+                    int(splits[0])
+                    self.update_results(splits[1], splits[13], int(splits[17]))
+                except ValueError:
+                    pass
 
     def results_for(self, riding: str, party: str) -> Optional[int]:
         """Return the number of votes received in <riding> by <party> in
@@ -155,7 +149,6 @@ class Election:
         >>> e.results_for('r2', 'pc')
         1
         """
-        # TODO: implement this method!
         return self._results[riding][party]
 
     def riding_winners(self, riding: str) -> List[str]:
@@ -175,7 +168,6 @@ class Election:
         >>> e.riding_winners('r1')
         ['pc']
         """
-        # TODO: implement this method!
         sorted_results = sorted(self._results[riding].items(),
                                 key=lambda x: x[1])
         sorted_results = [x[0] for x in sorted_results if
@@ -200,7 +192,6 @@ class Election:
         >>> e.popular_vote() == {'ndp': 8, 'lib': 7, 'pc': 7, 'green': 6}
         True
         """
-        # TODO: implement this method!
         popular_vote: Dict[str: int] = dict.fromkeys(self._parties, 0)
         for x in self._results:
             for y in self._results[x]:
@@ -225,7 +216,6 @@ class Election:
         >>> e.party_seats() == {'pc': 1, 'ndp': 1, 'lib': 0, 'green': 0}
         True
         """
-        # TODO: implement this method!
         party_seats: Dict[str: int] = dict.fromkeys(self._parties, 0)
         for riding in self._ridings:
             for winners in self.riding_winners(riding):
@@ -250,7 +240,6 @@ class Election:
         >>> e.election_winners()
         ['pc']
         """
-        # TODO: implement this method!
         seats = sorted(self.party_seats().items(),
                        key=lambda x: x[1])
         sorted_results = [x[0] for x in seats if
@@ -287,7 +276,6 @@ class Jurisdiction:
         >>> country._history
         {}
         """
-        # TODO: implement this method!
         self._name = name
         self._history = {}
 
@@ -298,7 +286,6 @@ class Jurisdiction:
         If there are already some results stored for an election on this date,
         add to them.
         """
-        # TODO: implement this method!
         d = date(year, month, day)
         if d not in self._history.keys():
             election = Election(d)
@@ -341,7 +328,6 @@ class Jurisdiction:
         >>> j.party_wins('lib')
         [datetime.date(2003, 5, 16), datetime.date(2003, 6, 1)]
         """
-        # TODO: implement this method!
         # Elaborated version
         # for date, election in self._history:
         #     if party in election.election_winners():
@@ -381,7 +367,6 @@ class Jurisdiction:
         date(2004, 5, 16): 0.2}
         True
         """
-        # TODO: implement this method!
         d = {}
         for date_key in self._history:
             popular = self._history[date_key].popular_vote()
@@ -419,9 +404,8 @@ class Jurisdiction:
         """
         all_ridings = []
         riding_change: List[Tuple[Set[str], Set[str]]] = []
-        # TODO: implement this method!
         for election in self._history:
-            all_ridings.append(set(self._history[election].ridings))
+            all_ridings.append(set(self._history[election].ridings_of()))
 
         for n in range(0, len(all_ridings) - 1):
             riding_added = all_ridings[n + 1] - all_ridings[n]
@@ -433,20 +417,20 @@ class Jurisdiction:
 if __name__ == '__main__':
     import python_ta
 
-    # python_ta.check_all(config={
-    #     'allowed-io': ['Election.read_results', 'Jurisdiction.read_results'],
-    #     'allowed-import-modules': [
-    #         'doctest', 'python_ta', 'datetime', 'typing'
-    #     ],
-    #     'max-attributes': 15
-    # })
+    python_ta.check_all(config={
+        'allowed-io': ['Election.read_results', 'Jurisdiction.read_results'],
+        'allowed-import-modules': [
+            'doctest', 'python_ta', 'datetime', 'typing'
+        ],
+        'max-attributes': 15
+    })
 
     import doctest
 
     doctest.testmod()
 
     # An example of reading election results from a file.
-    # c = Jurisdiction('Canada')
-    # c.read_results(2015, 2, 3, open('../data/parkdale-highpark.csv'))
-    # c.read_results(2015, 2, 3, open('../data/nunavut.csv'))
-    # c.read_results(2015, 2, 3, open('../data/labrador.csv'))
+    c = Jurisdiction('Canada')
+    c.read_results(2015, 2, 3, open('../data/parkdale-highpark.csv'))
+    c.read_results(2015, 2, 3, open('../data/nunavut.csv'))
+    c.read_results(2015, 2, 3, open('../data/labrador.csv'))
