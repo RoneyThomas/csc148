@@ -85,10 +85,12 @@ class LinkedList:
         3
         """
         # TODO: implement this method
-        # curr = self._first
-        # while curr is not None:
-        #     ... curr.item ...
-        #     curr = curr.next
+        length: int = 0
+        curr = self._first
+        while curr is not None:
+            length += 1
+            curr = curr.next
+        return length
 
     def __contains__(self, item: Any) -> bool:
         """Return whether <item> is in this list.
@@ -108,10 +110,12 @@ class LinkedList:
         False
         """
         # TODO: implement this method
-        # curr = self._first
-        # while curr is not None:
-        #     ... curr.item ...
-        #     curr = curr.next
+        curr = self._first
+        while curr is not None:
+            if curr.item == item:
+                return True
+            curr = curr.next
+        return False
 
     # HINTS: for this one, you'll be adding a new item to a linked list.
     #   1. Create a new _Node object first.
@@ -130,17 +134,23 @@ class LinkedList:
         2
         """
         # TODO: implement this method
-        # curr = self._first
-        # while curr is not None:
-        #     ... curr.item ...
-        #     curr = curr.next
+        node = _Node(item)
+        curr = self._first
+        if curr is None:
+            self._first = node
+        else:
+            while curr.next is not None:
+                curr = curr.next
+            curr.next = node
 
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-io': ['print_items']
     })
 
     import doctest
+
     doctest.testmod()
