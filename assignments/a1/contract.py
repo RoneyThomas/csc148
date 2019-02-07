@@ -12,6 +12,7 @@ All of the files in this directory and all subdirectories are:
 Copyright (c) 2019 Bogdan Simion, Diane Horton, Jacqueline Smith
 """
 import datetime
+from math import ceil
 from typing import Optional
 from bill import Bill
 from call import Call
@@ -72,7 +73,7 @@ class Contract:
         was made. In other words, you can safely assume that self.bill has been
         already advanced to the right month+year.
         """
-        self.bill.add_billed_minutes(call.duration)
+        self.bill.add_billed_minutes(ceil(call.duration / 60.0))
 
     def cancel_contract(self) -> float:
         """ Return the amount owed in order to close the phone line associated
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     import python_ta
     python_ta.check_all(config={
         'allowed-import-modules': [
-            'python_ta', 'typing', 'datetime', 'bill', 'call'
+            'python_ta', 'typing', 'datetime', 'bill', 'call', 'math'
         ],
         'disable': ['R0902', 'R0913'],
         'generated-members': 'pygame.*'
