@@ -67,7 +67,11 @@ class PhoneLine:
         month must be <started> by advancing to the right month from <call>.
         """
         # TODO: Implement this method
-        pass
+        # QUESTION:
+        self.callhistory.register_outgoing_call(call)
+        if (call.time.month, call.time.year) not in self.bills:
+            self.new_month(call.time.month, call.time.year)
+        self.contract.bill_call(call)
 
     def receive_call(self, call: Call) -> None:
         """ Add the <call> to this phone line's callhistory.
@@ -77,7 +81,10 @@ class PhoneLine:
         <call>.
         """
         # TODO: Implement this method
-        pass
+        self.callhistory.register_incoming_call(call)
+        if (call.time.month, call.time.year) not in self.bills:
+            self.new_month(call.time.month, call.time.year)
+        self.contract.bill_call(call)
 
     def cancel_line(self) -> float:
         """ Cancel this line's contract and return the outstanding bill amount
@@ -141,6 +148,7 @@ class PhoneLine:
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing',

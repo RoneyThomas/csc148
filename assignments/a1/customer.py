@@ -52,7 +52,9 @@ class Customer:
         <call>, is owned by this customer
         """
         # TODO: Implement this method
-        pass
+        for lines in self._phone_lines:
+            if lines.get_number() is call.src_number:
+                lines.make_call(call)
 
     def receive_call(self, call: Call) -> None:
         """ Record that a call was made to the destination phone number of
@@ -62,7 +64,9 @@ class Customer:
         number of <call>, is owned by this customer
         """
         # TODO: Implement this method
-        pass
+        for lines in self._phone_lines:
+            if lines.get_number() is call.dst_number:
+                lines.receive_call(call)
 
     def cancel_phone_line(self, number: str) -> Union[float, None]:
         """ Remove PhoneLine with number <number> from this customer and return
@@ -172,6 +176,7 @@ class Customer:
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing', 'phoneline', 'call', 'callhistory'

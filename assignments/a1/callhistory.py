@@ -39,13 +39,19 @@ class CallHistory:
         """ Register a Call <call> into this outgoing call history
         """
         # TODO: Implement this method
-        pass
+        if (call.time.month, call.time.year) in self.outgoing_calls:
+            self.outgoing_calls[(call.time.month, call.time.year)] += call
+        else:
+            self.outgoing_calls[(call.time.month, call.time.year)] = call
 
     def register_incoming_call(self, call: Call) -> None:
         """ Register a Call <call> into this incoming call history
         """
         # TODO: Implement this method
-        pass
+        if (call.time.month, call.time.year) in self.outgoing_calls:
+            self.incoming_calls[(call.time.month, call.time.year)] += call
+        else:
+            self.incoming_calls[(call.time.month, call.time.year)] = call
 
     # ----------------------------------------------------------
     # NOTE: You do not need to understand the implementation of
@@ -88,10 +94,11 @@ class CallHistory:
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing', 'datetime', 'call'
-            ''
+                                               ''
         ],
         'disable': ['R0902', 'R0913'],
         'generated-members': 'pygame.*'
