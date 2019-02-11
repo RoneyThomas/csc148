@@ -17,7 +17,6 @@ from typing import Optional
 from bill import Bill
 from call import Call
 
-
 # Constants for the month-to-month contract monthly fee and term deposit
 MTM_MONTHLY_FEE = 50.00
 TERM_MONTHLY_FEE = 20.00
@@ -89,10 +88,66 @@ class Contract:
 
 
 # TODO: Implement the MTMContract, TermContract, and PrepaidContract
+class MTMContract(Contract):
+
+    def new_month(self, month: int, year: int, bill: Bill) -> None:
+        self.bill = bill
+        self.bill.set_rates("MTM", MTM_MINS_COST)
+        self.bill.add_fixed_cost(MTM_MONTHLY_FEE)
+
+
+class TermContract(Contract):
+    end: datetime.date
+    last_record: datetime.date
+
+    def __init__(self, start: datetime.date, end: datetime.date):
+        self.end = end
+        super(TermContract, self).__init__(start)
+
+    def new_month(self, month: int, year: int, bill: Bill) -> None:
+        self.bill = bill
+        self.bill.set_rates("TERM", TERM_MINS_COST)
+        # Take term deposit if its the first month of the contract
+        if self.start.month == month and self.start.year == year:
+            self.bill.add_fixed_cost(TERM_DEPOSIT)
+        self.bill.add_fixed_cost(TERM_MONTHLY_FEE)
+        self.bill.add_free_minutes(TERM_MINS)
+        self.last_record = datetime.date(year, month, 1)
+
+    def cancel_contract(self) -> float:
+        cost = super(TermContract, self).cancel_contract()
+        # Subtract term deposit from cost.
+        if self.end.year >= self.last_record.year and \
+                self.end.month >= self.last_record.month:
+            cost -= TERM_DEPOSIT
+        return cost
+
+
+class PrepaidContract(Contract):
+    balance: float
+
+    def __init__(self, start: datetime.date, balance: float):
+        super(PrepaidContract, self).__init__(start)
+        self.balance = 0 - balance
+
+    def new_month(self, month: int, year: int, bill: Bill) -> None:
+        self.bill = bill
+        self.bill.set_rates("PREPAID", PREPAID_MINS_COST)
+        if self.balance < 10:
+            self.balance -= 10
+            self.bill.add_fixed_cost(10)
+
+    def cancel_contract(self) -> float:
+        cost = super(PrepaidContract, self).cancel_contract()
+        if self.balance + cost > 0:
+            return self.balance + cost
+        else:
+            return 0
 
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing', 'datetime', 'bill', 'call', 'math'

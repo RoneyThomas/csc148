@@ -18,6 +18,7 @@ from visualizer import Visualizer
 from customer import Customer
 from phoneline import PhoneLine
 from call import Call
+from contract import *
 
 
 def import_data() -> Dict[str, List[Dict]]:
@@ -51,7 +52,7 @@ def create_customers(log: Dict[str, List[Dict]]) -> List[Customer]:
             #    all types of contracts.
             # 2) Make sure to import the necessary contract classes in this file
             # 3) Remove this TODO list when you're done.
-            """
+
             if line['contract'] == 'prepaid':
                 # start with $100 credit on the account
                 contract = PrepaidContract(datetime.date(2017, 12, 25), 100)
@@ -62,7 +63,6 @@ def create_customers(log: Dict[str, List[Dict]]) -> List[Customer]:
                                         datetime.date(2019, 6, 25))
             else:
                 print("ERROR: unknown contract type")
-            """
 
             line = PhoneLine(line['number'], contract)
             customer.add_phone_line(line)
@@ -131,8 +131,8 @@ def process_event_history(log: Dict[str, List[Dict]],
     for event_data in log['events']:
         if event_data['type'] == 'call':
             call = Call(event_data['src_number'], event_data['dst_number'],
-                        event_data['duration'], event_data['src_loc'],
-                        event_data['dst_loc'])
+                        event_data['time'], event_data['duration'],
+                        event_data['src_loc'], event_data['dst_loc'])
             billing_date = datetime.datetime.strptime(event_data['time'],
                                                       "%Y-%m-%d %H:%M:%S")
             if billing_month != billing_date.month:
@@ -143,7 +143,7 @@ def process_event_history(log: Dict[str, List[Dict]],
             customer_mk.make_call(call)
             customer_rc = find_customer_by_number(
                 event_data['dst_number'], customer_list)
-            customer_rc.customer.receive_call(call)
+            customer_rc.receive_call(call)
             # for customer in customer_list:
             #     if event_data['src_number'] in customer:
             #         customer.make_call(call)
