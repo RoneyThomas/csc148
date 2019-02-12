@@ -83,7 +83,7 @@ class PhoneLine:
         self.callhistory.register_incoming_call(call)
         if (call.time.month, call.time.year) not in self.bills:
             self.new_month(call.time.month, call.time.year)
-        self.contract.bill_call(call)
+        # self.contract.bill_call(call)
 
     def cancel_line(self) -> float:
         """ Cancel this line's contract and return the outstanding bill amount

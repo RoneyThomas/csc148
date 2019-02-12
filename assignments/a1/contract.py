@@ -111,10 +111,17 @@ class TermContract(Contract):
         if self.start.month == month and self.start.year == year:
             self.bill.add_fixed_cost(TERM_DEPOSIT)
         self.bill.add_fixed_cost(TERM_MONTHLY_FEE)
-        self.bill.add_free_minutes(TERM_MINS)
+        # QUESTION: Removed free minutes and moved it to bill call
+        # self.bill.add_free_minutes(TERM_MINS)
         self.last_record = datetime.date(year, month, 1)
 
-    #bill call
+    def bill_call(self, call: Call) -> None:
+        billed_minutes = ceil(call.duration / 60.0) - TERM_MINS
+        if billed_minutes > 0:
+            self.bill.add_billed_minutes(billed_minutes)
+            self.bill.add_free_minutes(TERM_MINS)
+        else:
+            self.bill.add_free_minutes(ceil(call.duration / 60.0))
 
     def cancel_contract(self) -> float:
         cost = super(TermContract, self).cancel_contract()
@@ -135,11 +142,20 @@ class PrepaidContract(Contract):
     def new_month(self, month: int, year: int, bill: Bill) -> None:
         self.bill = bill
         self.bill.set_rates("PREPAID", PREPAID_MINS_COST)
-        if self.balance < 10:
-            self.balance -= 10
+        if self.balance > -10:
+            self.balance -= 25
             self.bill.add_fixed_cost(25)
+        self.bill.add_fixed_cost(self.balance)
 
-    #bill_call
+    def bill_call(self, call: Call) -> None:
+        billed_minutes = ceil(call.duration / 60.0)
+        billed_minutes_cost = billed_minutes * PREPAID_MINS_COST
+        self.balance += billed_minutes_cost
+        if self.balance < 0:
+            self.bill.add_billed_minutes(billed_minutes)
+        else:
+            self.bill.add_billed_minutes(billed_minutes)
+            # super(PrepaidContract, self).bill_call(call)
 
     def cancel_contract(self) -> float:
         cost = super(PrepaidContract, self).cancel_contract()
