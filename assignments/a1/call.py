@@ -16,7 +16,6 @@ import os
 from typing import Tuple, List, Optional
 import pygame
 
-
 # Sprite files to display the start and end of a call
 START_CALL_SPRITE = 'data/call-start-2.png'
 END_CALL_SPRITE = 'data/call-end-2.png'
@@ -120,7 +119,8 @@ class Call:
         """
         self.src_number = src_nr
         self.dst_number = dst_nr
-        self.time = calltime
+        self.time = datetime.datetime.strptime(calltime,
+                                               "%Y-%m-%d %H:%M:%S")
         self.duration = duration
         self.src_loc = src_loc
         self.dst_loc = dst_loc
@@ -156,6 +156,7 @@ class Call:
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing', 'datetime', 'os', 'pygame'

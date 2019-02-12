@@ -40,18 +40,18 @@ class CallHistory:
         """
         # TODO: Implement this method
         if (call.time.month, call.time.year) in self.outgoing_calls:
-            self.outgoing_calls[(call.time.month, call.time.year)] += call
+            self.outgoing_calls[(call.time.month, call.time.year)].append(call)
         else:
-            self.outgoing_calls[(call.time.month, call.time.year)] = call
+            self.outgoing_calls[(call.time.month, call.time.year)] = [call]
 
     def register_incoming_call(self, call: Call) -> None:
         """ Register a Call <call> into this incoming call history
         """
         # TODO: Implement this method
-        if (call.time.month, call.time.year) in self.outgoing_calls:
-            self.incoming_calls[(call.time.month, call.time.year)] += call
+        if (call.time.month, call.time.year) in self.incoming_calls:
+            self.incoming_calls[(call.time.month, call.time.year)].append(call)
         else:
-            self.incoming_calls[(call.time.month, call.time.year)] = call
+            self.incoming_calls[(call.time.month, call.time.year)] = [call]
 
     # ----------------------------------------------------------
     # NOTE: You do not need to understand the implementation of

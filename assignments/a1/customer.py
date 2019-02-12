@@ -53,7 +53,7 @@ class Customer:
         """
         # TODO: Implement this method
         for lines in self._phone_lines:
-            if lines.get_number() is call.src_number:
+            if lines.get_number() == call.src_number:
                 lines.make_call(call)
 
     def receive_call(self, call: Call) -> None:
@@ -65,7 +65,7 @@ class Customer:
         """
         # TODO: Implement this method
         for lines in self._phone_lines:
-            if lines.get_number() is call.dst_number:
+            if lines.get_number() == call.dst_number:
                 lines.receive_call(call)
 
     def cancel_phone_line(self, number: str) -> Union[float, None]:

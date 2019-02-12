@@ -67,7 +67,6 @@ class PhoneLine:
         month must be <started> by advancing to the right month from <call>.
         """
         # TODO: Implement this method
-        # QUESTION:
         self.callhistory.register_outgoing_call(call)
         if (call.time.month, call.time.year) not in self.bills:
             self.new_month(call.time.month, call.time.year)

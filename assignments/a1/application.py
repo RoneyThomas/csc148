@@ -18,7 +18,7 @@ from visualizer import Visualizer
 from customer import Customer
 from phoneline import PhoneLine
 from call import Call
-from contract import *
+from contract import MTMContract, TermContract, PrepaidContract
 
 
 def import_data() -> Dict[str, List[Dict]]:

@@ -114,6 +114,8 @@ class TermContract(Contract):
         self.bill.add_free_minutes(TERM_MINS)
         self.last_record = datetime.date(year, month, 1)
 
+    #bill call
+
     def cancel_contract(self) -> float:
         cost = super(TermContract, self).cancel_contract()
         # Subtract term deposit from cost.
@@ -135,7 +137,9 @@ class PrepaidContract(Contract):
         self.bill.set_rates("PREPAID", PREPAID_MINS_COST)
         if self.balance < 10:
             self.balance -= 10
-            self.bill.add_fixed_cost(10)
+            self.bill.add_fixed_cost(25)
+
+    #bill_call
 
     def cancel_contract(self) -> float:
         cost = super(PrepaidContract, self).cancel_contract()
