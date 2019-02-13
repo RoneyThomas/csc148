@@ -111,8 +111,6 @@ class TermContract(Contract):
         if self.start.month == month and self.start.year == year:
             self.bill.add_fixed_cost(TERM_DEPOSIT)
         self.bill.add_fixed_cost(TERM_MONTHLY_FEE)
-        # QUESTION: Removed free minutes and moved it to bill call
-        # self.bill.add_free_minutes(TERM_MINS)
         self.last_record = datetime.date(year, month, 1)
 
     def bill_call(self, call: Call) -> None:
@@ -154,7 +152,6 @@ class PrepaidContract(Contract):
             self.bill.add_billed_minutes(billed_minutes)
         else:
             self.bill.add_billed_minutes(billed_minutes)
-            # super(PrepaidContract, self).bill_call(call)
 
     def cancel_contract(self) -> float:
         cost = super(PrepaidContract, self).cancel_contract()
