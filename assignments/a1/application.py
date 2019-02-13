@@ -129,26 +129,22 @@ def process_event_history(log: Dict[str, List[Dict]],
     Then we add call object to make_call and recieve method.
     """
     for event_data in log['events']:
+        billing_date = datetime.datetime.strptime(event_data['time'],
+                                                  "%Y-%m-%d %H:%M:%S")
+        # we advance month regardless if its sms or calls
+        if billing_month != billing_date.month:
+            billing_month = billing_date.month
+            new_month(customer_list, billing_date.month, billing_date.year)
         if event_data['type'] == 'call':
             call = Call(event_data['src_number'], event_data['dst_number'],
                         event_data['time'], event_data['duration'],
                         event_data['src_loc'], event_data['dst_loc'])
-            billing_date = datetime.datetime.strptime(event_data['time'],
-                                                      "%Y-%m-%d %H:%M:%S")
-            if billing_month != billing_date.month:
-                billing_month = billing_date.month
-                new_month(customer_list, billing_date.month, billing_date.year)
             customer_mk = find_customer_by_number(event_data['src_number'],
                                                   customer_list)
             customer_mk.make_call(call)
             customer_rc = find_customer_by_number(
                 event_data['dst_number'], customer_list)
             customer_rc.receive_call(call)
-            # for customer in customer_list:
-            #     if event_data['src_number'] in customer:
-            #         customer.make_call(call)
-            #     elif event_data['dst_number'] in customer:
-            #         customer.receive_call(call)
 
 
 if __name__ == '__main__':
