@@ -165,7 +165,7 @@ class DurationFilter(Filter):
                         calls.append(call)
             else:
                 return data
-        except (ValueError, IndexError):
+        except (ValueError, IndexError, Exception):
             return data
 
         # if not calls:
