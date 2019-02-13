@@ -144,7 +144,6 @@ class PrepaidContract(Contract):
         self.bill.set_rates("PREPAID", PREPAID_MINS_COST)
         if self.balance > -10:
             self.balance -= 25
-            self.bill.add_fixed_cost(25)
         self.bill.add_fixed_cost(self.balance)
 
     def bill_call(self, call: Call) -> None:
