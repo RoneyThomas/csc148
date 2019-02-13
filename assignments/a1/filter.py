@@ -24,6 +24,7 @@ class Filter:
 
     This is an abstract class. Only subclasses should be instantiated.
     """
+
     def __init__(self) -> None:
         pass
 
@@ -58,6 +59,7 @@ class ResetFilter(Filter):
     """
     A class for resetting all previously applied filters, if any.
     """
+
     def apply(self, customers: List[Customer],
               data: List[Call],
               filter_string: str) \
@@ -87,6 +89,7 @@ class CustomerFilter(Filter):
     """
     A class for selecting only the calls from a given customer.
     """
+
     def apply(self, customers: List[Customer],
               data: List[Call],
               filter_string: str) \
@@ -103,7 +106,17 @@ class CustomerFilter(Filter):
         specified in the handout.
         """
         # TODO: Implement this method
-        return data
+        in_list = False
+        calls: List[Call] = []
+        for customer in customers:
+            if customer.get_id() == filter_string:
+                in_list = True
+                for call in data:
+                    if call.src_number in customer or call.dst_number in customer:
+                        calls.append(call)
+        if not calls and not in_list:
+            return data
+        return calls
 
     def __str__(self) -> str:
         """ Return a description of this filter to be displayed in the UI menu
@@ -116,6 +129,7 @@ class DurationFilter(Filter):
     A class for selecting only the calls lasting either over or under a
     specified duration.
     """
+
     def apply(self, customers: List[Customer],
               data: List[Call],
               filter_string: str) \
@@ -133,7 +147,27 @@ class DurationFilter(Filter):
         specified in the handout.
         """
         # TODO: Implement this method
-        return data
+        calls: List[Call] = []
+        try:
+            # QUESTION: should i make it lower case or not?
+            filter_string = filter_string[0].lower() + filter_string[1:]
+            if filter_string[0] == 'l' or filter_string[0] == 'g':
+                duration = int(filter_string[1:])
+                for call in data:
+                    if call.duration < duration and filter_string[
+                        0] == 'l':
+                        calls.append(call)
+                    elif call.duration > duration and filter_string[
+                        0] == 'g':
+                        calls.append(call)
+            else:
+                return data
+        except (ValueError, IndexError):
+            return data
+
+        # if not calls:
+        #     return data
+        return calls
 
     def __str__(self) -> str:
         """ Return a description of this filter to be displayed in the UI menu
@@ -146,6 +180,7 @@ class LocationFilter(Filter):
     """
     A class for selecting only the calls that took place within a specific area
     """
+
     def apply(self, customers: List[Customer],
               data: List[Call],
               filter_string: str) \
@@ -171,7 +206,37 @@ class LocationFilter(Filter):
         specified in the handout.
         """
         # TODO: Implement this method
-        return data
+        calls: List[Call] = []
+        try:
+            filter_split = [float(x) for x in filter.split(', ')]
+            if len(filter_split) == 4:
+                low_longi, high_longi = -79.697878, -79.196382
+                low_lati, high_lati = 43.799568, 43.576959
+                filter_longi_low, filter_longi_high = filter_split[0], \
+                                                      filter_split[
+                                                          2]
+                filter_lati_low, filter_lati_high = filter_split[1], \
+                                                    filter_split[3]
+                if low_longi <= filter_longi_low <= high_longi and \
+                        low_longi <= filter_longi_high <= high_longi and \
+                        low_lati <= filter_lati_low <= high_lati and \
+                        low_lati <= filter_lati_high <= high_lati:
+                    for call in data:
+                        # QUESTION: https://piazza.com/class/jpuk89lzot57ez?cid=734
+                        # at least the source or the destination or both ?
+                        # of the event was in the range of coordinates from the <filter_string>
+                        call_src_longi, call_src_lati = call.src_loc
+                        call_dst_longi, call_dst_lati = call.dst_loc
+                        if filter_longi_low <= call_src_longi <= filter_longi_high and \
+                                filter_lati_low <= call_src_lati <= filter_lati_high or \
+                                filter_longi_low <= call_dst_longi <= filter_longi_high and \
+                                filter_lati_low <= call_dst_lati <= filter_lati_high:
+                            calls.append(call)
+            else:
+                return data
+        except (AttributeError, Exception):
+            return data
+        return calls
 
     def __str__(self) -> str:
         """ Return a description of this filter to be displayed in the UI menu
@@ -183,6 +248,7 @@ class LocationFilter(Filter):
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'python_ta', 'typing', 'time', 'datetime', 'call', 'customer'
