@@ -108,12 +108,15 @@ class CustomerFilter(Filter):
         # TODO: Implement this method
         in_list = False
         calls: List[Call] = []
-        for customer in customers:
-            if customer.get_id() == filter_string:
-                in_list = True
-                for call in data:
-                    if call.src_number in customer or call.dst_number in customer:
-                        calls.append(call)
+        try:
+            for customer in customers:
+                if customer.get_id() == int(filter_string):
+                    in_list = True
+                    for call in data:
+                        if call.src_number in customer or call.dst_number in customer:
+                            calls.append(call)
+        except Exception:
+            return data
         if not calls and not in_list:
             return data
         return calls
