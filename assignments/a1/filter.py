@@ -211,33 +211,19 @@ class LocationFilter(Filter):
         # TODO: Implement this method
         calls: List[Call] = []
         try:
-            filter_split = [float(x) for x in filter.split(', ')]
+            filter_split = [float(x.strip(' ')) for x in
+                            filter_string.split(',')]
             if len(filter_split) == 4:
-                low_longi, high_longi = -79.697878, -79.196382
-                low_lati, high_lati = 43.799568, 43.576959
-                filter_longi_low, filter_longi_high = filter_split[0], \
-                                                      filter_split[
-                                                          2]
-                filter_lati_low, filter_lati_high = filter_split[1], \
-                                                    filter_split[3]
-                if low_longi <= filter_longi_low <= high_longi and \
-                        low_longi <= filter_longi_high <= high_longi and \
-                        low_lati <= filter_lati_low <= high_lati and \
-                        low_lati <= filter_lati_high <= high_lati:
+                if is_valid_cord(filter_split[0:2]) and is_valid_cord(
+                        filter_split[2:]):
                     for call in data:
-                        # QUESTION: https://piazza.com/class/jpuk89lzot57ez?cid=734
-                        # at least the source or the destination or both ?
-                        # of the event was in the range of coordinates from the <filter_string>
-                        call_src_longi, call_src_lati = call.src_loc
-                        call_dst_longi, call_dst_lati = call.dst_loc
-                        if filter_longi_low <= call_src_longi <= filter_longi_high and \
-                                filter_lati_low <= call_src_lati <= filter_lati_high or \
-                                filter_longi_low <= call_dst_longi <= filter_longi_high and \
-                                filter_lati_low <= call_dst_lati <= filter_lati_high:
+                        if is_valid_cord(call.src_loc,
+                                         filter_split) or is_valid_cord(
+                            call.dst_loc, filter_split):
                             calls.append(call)
             else:
                 return data
-        except (AttributeError, Exception):
+        except (AttributeError, Exception) as e:
             return data
         return calls
 
@@ -247,6 +233,28 @@ class LocationFilter(Filter):
         return "Filter calls made or received in a given rectangular area. " \
                "Format: \"lowerLong, lowerLat, " \
                "upperLong, upperLat\" (e.g., -79.6, 43.6, -79.3, 43.7)"
+
+
+def is_valid_cord(points: [float],
+                  bounds: [float] = None) -> bool:
+    """
+    To check if point is in bound
+    :param points: gps coordinates of point
+    :param bounds: gps coordinates of bound
+    :return: True or False based on if point is in bounds
+
+    Precondition
+    len(points)==2
+    len(bounds)==4
+    """
+    if bounds is None:
+        bounds = [-79.697878, 43.576959, -79.196382,
+                  43.799568]
+    #-79.49878, 43.60212, -79.48999, 43.73017
+    if (bounds[0] <= points[0] <= bounds[2]) and (
+            bounds[1] <= points[1] <= bounds[3]):
+        return True
+    return False
 
 
 if __name__ == '__main__':
