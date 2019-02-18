@@ -223,7 +223,7 @@ class LocationFilter(Filter):
                             calls.append(call)
             else:
                 return data
-        except (AttributeError, Exception) as e:
+        except (AttributeError, Exception):
             return data
         return calls
 
@@ -250,7 +250,6 @@ def is_valid_cord(points: [float],
     if bounds is None:
         bounds = [-79.697878, 43.576959, -79.196382,
                   43.799568]
-    #-79.49878, 43.60212, -79.48999, 43.73017
     if (bounds[0] <= points[0] <= bounds[2]) and (
             bounds[1] <= points[1] <= bounds[3]):
         return True
