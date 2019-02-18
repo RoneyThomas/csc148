@@ -127,6 +127,7 @@ class TermContract(Contract):
         if self.end.year >= self.last_record.year and \
                 self.end.month >= self.last_record.month:
             cost -= TERM_DEPOSIT
+        self.start = None
         return cost
 
 
@@ -148,15 +149,12 @@ class PrepaidContract(Contract):
         billed_minutes = ceil(call.duration / 60.0)
         billed_minutes_cost = billed_minutes * PREPAID_MINS_COST
         self.balance += billed_minutes_cost
-        if self.balance < 0:
-            self.bill.add_billed_minutes(billed_minutes)
-        else:
-            self.bill.add_billed_minutes(billed_minutes)
+        self.bill.add_billed_minutes(billed_minutes)
 
     def cancel_contract(self) -> float:
         cost = super(PrepaidContract, self).cancel_contract()
-        if self.balance + cost > 0:
-            return self.balance + cost
+        if cost > 0:
+            return cost
         else:
             return 0
 
