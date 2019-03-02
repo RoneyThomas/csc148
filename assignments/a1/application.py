@@ -116,6 +116,7 @@ def process_event_history(log: Dict[str, List[Dict]],
     billing_date = datetime.datetime.strptime(log['events'][0]['time'],
                                               "%Y-%m-%d %H:%M:%S")
     billing_month = billing_date.month
+    billing_year = billing_date.year
 
     # start recording the bills from this date
     # Note: uncomment the following lines when you're ready to implement this
@@ -132,9 +133,11 @@ def process_event_history(log: Dict[str, List[Dict]],
         billing_date = datetime.datetime.strptime(event_data['time'],
                                                   "%Y-%m-%d %H:%M:%S")
         # we advance month regardless if its sms or calls
-        if billing_month != billing_date.month:
+        if billing_month != billing_date.month or \
+                billing_year != billing_date.year:
             billing_month = billing_date.month
-            new_month(customer_list, billing_date.month, billing_date.year)
+            billing_year = billing_date.year
+            new_month(customer_list, billing_month, billing_year)
         if event_data['type'] == 'call':
             call = Call(event_data['src_number'], event_data['dst_number'],
                         event_data['time'], event_data['duration'],
