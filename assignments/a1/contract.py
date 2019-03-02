@@ -89,6 +89,8 @@ class Contract:
 
 # TODO: Implement the MTMContract, TermContract, and PrepaidContract
 class MTMContract(Contract):
+    """ A contract for a month to month phone line
+    """
 
     def new_month(self, month: int, year: int, bill: Bill) -> None:
         self.bill = bill
@@ -97,10 +99,12 @@ class MTMContract(Contract):
 
 
 class TermContract(Contract):
+    """ A contract for a term phone line
+    """
     end: datetime.date
     last_record: datetime.date
 
-    def __init__(self, start: datetime.date, end: datetime.date):
+    def __init__(self, start: datetime.date, end: datetime.date) -> None:
         self.end = end
         super(TermContract, self).__init__(start)
 
@@ -132,9 +136,11 @@ class TermContract(Contract):
 
 
 class PrepaidContract(Contract):
+    """ A contract for a prepaid phone line
+    """
     balance: float
 
-    def __init__(self, start: datetime.date, balance: float):
+    def __init__(self, start: datetime.date, balance: float) -> None:
         super(PrepaidContract, self).__init__(start)
         self.balance = 0 - balance
 
