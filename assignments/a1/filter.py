@@ -113,7 +113,8 @@ class CustomerFilter(Filter):
                 if customer.get_id() == int(filter_string):
                     in_list = True
                     for call in data:
-                        if call.src_number in customer or call.dst_number in customer:
+                        if call.src_number in customer or \
+                                call.dst_number in customer:
                             calls.append(call)
         except Exception:
             return data
@@ -157,11 +158,11 @@ class DurationFilter(Filter):
             if filter_string[0] == 'l' or filter_string[0] == 'g':
                 duration = int(filter_string[1:])
                 for call in data:
-                    if call.duration < duration and filter_string[
-                        0] == 'l':
+                    if call.duration < duration and \
+                            filter_string[0] == 'l':
                         calls.append(call)
-                    elif call.duration > duration and filter_string[
-                        0] == 'g':
+                    elif call.duration > duration and \
+                            filter_string[0] == 'g':
                         calls.append(call)
             else:
                 return data
@@ -218,8 +219,8 @@ class LocationFilter(Filter):
                         filter_split[2:]):
                     for call in data:
                         if is_valid_cord(call.src_loc,
-                                         filter_split) or is_valid_cord(
-                            call.dst_loc, filter_split):
+                                         filter_split) or \
+                                is_valid_cord(call.dst_loc, filter_split):
                             calls.append(call)
             else:
                 return data
