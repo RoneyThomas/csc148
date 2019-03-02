@@ -47,11 +47,6 @@ def create_customers(log: Dict[str, List[Dict]]) -> List[Customer]:
         customer = Customer(cust['id'])
         for line in cust['lines']:
             contract = None
-            # TODO:
-            # 1) Uncomment the piece of code below once you've implemented
-            #    all types of contracts.
-            # 2) Make sure to import the necessary contract classes in this file
-            # 3) Remove this TODO list when you're done.
 
             if line['contract'] == 'prepaid':
                 # start with $100 credit on the account
@@ -112,7 +107,6 @@ def process_event_history(log: Dict[str, List[Dict]],
     handout.
     - The <customer_list> already contains all the customers from the <log>.
     """
-    # TODO: Implement this method. We are giving you the first few lines of code
     billing_date = datetime.datetime.strptime(log['events'][0]['time'],
                                               "%Y-%m-%d %H:%M:%S")
     billing_month = billing_date.month
