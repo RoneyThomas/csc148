@@ -110,19 +110,45 @@ class NumberGame:
 # TODO: Write classes Player, RandomPlayer, UserPlayer, and StrategicPlayer.
 
 class Player():
-    pass
+    name: str
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def move(self, current: int, min_step: int, max_step: int,
+             goal: int) -> int:
+        raise NotImplementedError
 
 
 class RandomPlayer(Player):
-    pass
+
+    def move(self, current: int, min_step: int, max_step: int,
+             goal: int) -> int:
+        while current + max_step > goal:
+            max_step -= 1
+        move = random.randint(min_step, max_step)
+        return move
 
 
 class UserPlayer(Player):
-    pass
+
+    def move(self, current: int, min_step: int, max_step: int,
+             goal: int) -> int:
+        while current + max_step > goal:
+            max_step -= 1
+        choice: int = 0
+        while choice == 0 or current + choice > goal:
+            print(
+                f'Enter your move choice, enter between {min_step} and {max_step}')
+            choice = int(input())
+        return choice
 
 
 class StrategicPlayer(Player):
-    pass
+
+    def move(self, current: int, min_step: int, max_step: int,
+             goal: int) -> int:
+        pass
 
 
 def make_player(generic_name: str) -> Player:
@@ -133,6 +159,19 @@ def make_player(generic_name: str) -> Player:
     """
     name = input(f'Enter a name for {generic_name}: ')
     # TODO: Create and return some sort of Player.
+    print("Choose Player Type, input n.o")
+    print("1 Random Player")
+    print("2 User Player")
+    print("3 Strategic Player")
+    choice = int(input())
+    player: Player
+    if choice == 1:
+        player = RandomPlayer(name)
+    elif choice == 2:
+        player = UserPlayer(name)
+    elif choice == 3:
+        player = StrategicPlayer(name)
+    return player
 
 
 def main() -> None:
