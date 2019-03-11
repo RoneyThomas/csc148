@@ -192,23 +192,30 @@ class RecursiveList:
         Precondition: index >= 0.
         Raise IndexError if <index> is >= the length of this list.
 
+        # >>> lst = RecursiveList([1, 2, 3])
+        # >>> lst.pop(2)
+        # 3
+        # >>> str(lst)
+        # '1 -> 2'
+        # >>> lst.pop(1)
+        # 2
+        # >>> str(lst)
+        # '1'
+        # >>> lst.pop(0)
+        # 1
+        # >>> str(lst)
+        # ''
+        # >>> lst.pop(0)
+        # Traceback (most recent call last):
+        # ...
+        # IndexError
         >>> lst = RecursiveList([1, 2, 3])
-        >>> lst.pop(2)
-        3
-        >>> str(lst)
-        '1 -> 2'
         >>> lst.pop(1)
         2
         >>> str(lst)
-        '1'
-        >>> lst.pop(0)
-        1
-        >>> str(lst)
-        ''
-        >>> lst.pop(0)
-        Traceback (most recent call last):
-        ...
-        IndexError
+        '1 -> 3'
+        >>> lst.pop(1)
+        3
         """
         if self.is_empty():
             raise IndexError
