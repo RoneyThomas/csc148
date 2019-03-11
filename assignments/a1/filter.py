@@ -108,16 +108,14 @@ class CustomerFilter(Filter):
         # TODO: Implement this method
         in_list = False
         calls: List[Call] = []
-        try:
-            for customer in customers:
-                if customer.get_id() == int(filter_string):
-                    in_list = True
-                    for call in data:
-                        if call.src_number in customer or \
-                                call.dst_number in customer:
-                            calls.append(call)
-        except Exception:
-            return data
+        for customer in customers:
+            if str(customer.get_id()) == filter_string:
+                in_list = True
+                for call in data:
+                    if call.src_number in customer or \
+                            call.dst_number in customer:
+                        calls.append(call)
+
         if not calls and not in_list:
             return data
         return calls
@@ -217,11 +215,7 @@ class LocationFilter(Filter):
             if len(filter_split) == 4:
                 if is_valid_cord(filter_split[0:2]) and is_valid_cord(
                         filter_split[2:]):
-                    for call in data:
-                        if is_valid_cord(call.src_loc,
-                                         filter_split) or \
-                                is_valid_cord(call.dst_loc, filter_split):
-                            calls.append(call)
+                    calls = call_in_data(data, filter_split)
             else:
                 return data
         except (AttributeError, Exception):
@@ -234,6 +228,22 @@ class LocationFilter(Filter):
         return "Filter calls made or received in a given rectangular area. " \
                "Format: \"lowerLong, lowerLat, " \
                "upperLong, upperLat\" (e.g., -79.6, 43.6, -79.3, 43.7)"
+
+
+def call_in_data(data: List[Call], filter_split: []) -> List[Call]:
+    """
+    To check if a call is in data
+    :param data:
+    :param filter_split:
+    :return:
+    """
+    calls: List[Call] = []
+    for call in data:
+        if is_valid_cord(call.src_loc,
+                         filter_split) or \
+                is_valid_cord(call.dst_loc, filter_split):
+            calls.append(call)
+    return calls
 
 
 def is_valid_cord(points: [float],

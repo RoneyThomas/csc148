@@ -105,8 +105,8 @@ class TermContract(Contract):
     last_record: datetime.date
 
     def __init__(self, start: datetime.date, end: datetime.date) -> None:
+        super().__init__(start)
         self.end = end
-        super(TermContract, self).__init__(start)
 
     def new_month(self, month: int, year: int, bill: Bill) -> None:
         self.bill = bill
@@ -126,12 +126,11 @@ class TermContract(Contract):
             self.bill.add_free_minutes(ceil(call.duration / 60.0))
 
     def cancel_contract(self) -> float:
-        cost = super(TermContract, self).cancel_contract()
+        cost = super().cancel_contract()
         # Subtract term deposit from cost.
         if self.end.year >= self.last_record.year and \
                 self.end.month >= self.last_record.month:
             cost -= TERM_DEPOSIT
-        self.start = None
         return cost
 
 
@@ -141,7 +140,7 @@ class PrepaidContract(Contract):
     balance: float
 
     def __init__(self, start: datetime.date, balance: float) -> None:
-        super(PrepaidContract, self).__init__(start)
+        super().__init__(start)
         self.balance = 0 - balance
 
     def new_month(self, month: int, year: int, bill: Bill) -> None:
@@ -158,7 +157,7 @@ class PrepaidContract(Contract):
         self.bill.add_billed_minutes(billed_minutes)
 
     def cancel_contract(self) -> float:
-        cost = super(PrepaidContract, self).cancel_contract()
+        cost = super().cancel_contract()
         if cost > 0:
             return cost
         else:
