@@ -238,11 +238,14 @@ class FileSystemTree(TMTree):
         # TODO: (Task 1) Implement the initializer
         name: str = os.path.basename(path)
         subtrees: List[TMTree] = []
-        size: int = os.path.getsize(path)
+        size: int = 0
         if os.path.isdir(path):
             with os.scandir(path) as entries:
                 for entry in entries:
                     subtrees.append(FileSystemTree(entry.path))
+                    size = sum(tree.data_size for tree in subtrees)
+        else:
+            size = os.path.getsize(path)
         super().__init__(name, subtrees, size)
 
     def get_separator(self) -> str:
