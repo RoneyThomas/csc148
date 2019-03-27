@@ -113,8 +113,9 @@ class TMTree:
         # docstring.
         self._colour = (randint(0, 255), randint(0, 255), randint(0, 255))
         # 2. Set this tree as the parent for each of its subtrees.
-        for tree in subtrees:
-            tree._parent_tree = self
+        if subtrees:
+            for tree in subtrees:
+                tree._parent_tree = self
 
     def is_empty(self) -> bool:
         """Return True iff this tree is empty.
@@ -235,6 +236,13 @@ class FileSystemTree(TMTree):
         #
         # Also remember to make good use of the superclass constructor!
         # TODO: (Task 1) Implement the initializer
+        name: str = os.path.basename(path)
+        subtrees: List[TMTree] = []
+        if os.path.isdir(path):
+            with os.scandir(path) as entries:
+                for entry in entries:
+                    subtrees.append(FileSystemTree(entry.path))
+        super().__init__(name, subtrees)
 
     def get_separator(self) -> str:
         """Return the file separator for this OS.

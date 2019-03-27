@@ -1,3 +1,5 @@
 venv/
 settings.jar
-.idea/
+.idea
+__pycache__/
+pyta_report.html
