@@ -113,7 +113,7 @@ class TMTree:
         # docstring.
         self._colour = (randint(0, 255), randint(0, 255), randint(0, 255))
         # 2. Set this tree as the parent for each of its subtrees.
-        if not name:
+        if self.is_empty():
             self.data_size = 0
         else:
             if subtrees:
@@ -147,25 +147,24 @@ class TMTree:
         # leaves
         self.rect = rect
         x, y, width, height = rect
-        if width > height:
-            w = 0
-            for subtree in self._subtrees[:-1]:
-                w = int((subtree.data_size / self.data_size) * width)
-                subtree.rect = (x, y, w, height)
-                subtree.update_rectangles((x, y, w, height))
-                x += w
-            # The last subtree
-            temp = (x, y, width - w, height)
-            self._subtrees[-1].rect = (x, y, width - w, height)
-        else:
-            h = 0
-            for subtree in self._subtrees[:-1]:
-                h = int((subtree.data_size / self.data_size) * height)
-                subtree.rect = (x, y, width, h)
-                subtree.update_rectangles((x, y, width, h))
-                y += h
-            # The last subtree
-            self._subtrees[-1].rect = (x, y, width, height - h)
+        if self._subtrees:
+            if width > height:
+                w = 0
+                for subtree in self._subtrees[:-1]:
+                    w = int((subtree.data_size / self.data_size) * width)
+                    subtree.rect = (x, y, w, height)
+                    subtree.update_rectangles((x, y, w, height))
+                    x += w
+                self._subtrees[-1].rect = (x, y, width - w, height)
+            else:
+                h = 0
+                for subtree in self._subtrees[:-1]:
+                    h = int((subtree.data_size / self.data_size) * height)
+                    subtree.rect = (x, y, width, h)
+                    subtree.update_rectangles((x, y, width, h))
+                    y += h
+                # The last subtree
+                self._subtrees[-1].rect = (x, y, width, height - h)
 
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
@@ -176,19 +175,24 @@ class TMTree:
         """
         # TODO: (Task 2) Complete the body of this method.
         # Come back after Task 4
-        if self.data_size == 0:
+        # if self.is_empty():
+        #     return []
+        # elif not self._expanded or not self._subtrees:
+        #     return [(self.rect, self._colour)]
+        # else:
+        #     lst = []
+        #     for t in self._subtrees:
+        #         lst.append(t.get_rectangles())
+        #     return lst
+        if self.is_empty():
             return []
-        rect = []
-        if self._expanded:
-            for subtree in self._subtrees:
-                if self._expanded:
-                    rect.extend(subtree.get_rectangles())
-                else:
-                    rect.append((subtree.rect, subtree._colour))
-        elif not self._expanded and not self._parent_tree:
+        elif not self._subtrees:
             return [(self.rect, self._colour)]
-        # return rect
-        return [(self.rect, self._colour)]
+        else:
+            lst = []
+            for tree in self._subtrees:
+                lst.extend(tree.get_rectangles())
+            return lst
 
     def get_tree_at_position(self, pos: Tuple[int, int]) -> Optional[TMTree]:
         """Return the leaf in the displayed-tree rooted at this tree whose
@@ -220,6 +224,13 @@ class TMTree:
         If this tree is a leaf, return its size unchanged.
         """
         # TODO: (Task 4) Complete the body of this method.
+        if self._subtrees:
+            self.data_size = 0
+            for t in self._subtrees:
+                self.data_size += t.data_size
+        if self._parent_tree:
+            self._parent_tree.update_data_sizes()
+        return self.data_size
 
     def move(self, destination: TMTree) -> None:
         """If this tree is a leaf, and <destination> is not a leaf, move this
@@ -326,8 +337,8 @@ class FileSystemTree(TMTree):
 if __name__ == '__main__':
     import python_ta
 
-    python_ta.check_all(config={
-        'allowed-import-modules': [
-            'python_ta', 'typing', 'math', 'random', 'os', '__future__'
-        ]
-    })
+    # python_ta.check_all(config={
+    #     'allowed-import-modules': [
+    #         'python_ta', 'typing', 'math', 'random', 'os', '__future__'
+    #     ]
+    # })
