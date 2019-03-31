@@ -140,11 +140,6 @@ class TMTree:
         # Programming tip: use "tuple unpacking assignment" to easily extract
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
-
-        # Do i need this?
-        # if self.data_size == 0:
-        #     self.rect = ()
-        # leaves
         self.rect = rect
         x, y, width, height = rect
         if self._subtrees:
@@ -152,19 +147,17 @@ class TMTree:
                 w = 0
                 for subtree in self._subtrees[:-1]:
                     w = int((subtree.data_size / self.data_size) * width)
-                    subtree.rect = (x, y, w, height)
                     subtree.update_rectangles((x, y, w, height))
                     x += w
-                self._subtrees[-1].rect = (x, y, width - w, height)
+                self._subtrees[-1].update_rectangles((x, y, width-x, height))
             else:
                 h = 0
                 for subtree in self._subtrees[:-1]:
                     h = int((subtree.data_size / self.data_size) * height)
-                    subtree.rect = (x, y, width, h)
                     subtree.update_rectangles((x, y, width, h))
                     y += h
                 # The last subtree
-                self._subtrees[-1].rect = (x, y, width, height - h)
+                self._subtrees[-1].update_rectangles((x, y, width, height-y))
 
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
@@ -186,7 +179,7 @@ class TMTree:
         #     return lst
         if self.is_empty():
             return []
-        elif not self._subtrees:
+        elif not self._subtrees or not self._expanded:
             return [(self.rect, self._colour)]
         else:
             lst = []
@@ -203,18 +196,25 @@ class TMTree:
         tree represented by the rectangle that is closer to the origin.
         """
         # TODO: (Task 3) Complete the body of this method
-        if not self._expanded:
+        if not self._expanded or not self._subtrees:
+            if self._name == "activites":
+                temp = "Roney Thomas"
             x, y, width, height = self.rect
             if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
                 return self
             else:
                 return None
         else:
+            print(pos)
+            for t in self._subtrees:
+                if t.get_tree_at_position(pos) is not None:
+                    return t.get_tree_at_position(pos)
+            return None
             # t_lst = [t for t in self._subtrees if t.get_tree_at_position(pos)]
             # c_lst = []
             # for t in t_lst:
             #     c_lst.append(math.sqrt(t.rect[0] ^ 2 + t.rect[1] ^ 2))
-            return self
+            # return self
             # return t_lst[c_lst.index(min(c_lst))]
 
     def update_data_sizes(self) -> int:
