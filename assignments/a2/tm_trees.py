@@ -141,24 +141,27 @@ class TMTree:
         # Programming tip: use "tuple unpacking assignment" to easily extract
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
-        self.rect = rect
-        x, y, width, height = rect
-        if self._subtrees:
-            if width > height:
-                w = 0
-                for subtree in self._subtrees[:-1]:
-                    w = int((subtree.data_size / self.data_size) * width)
-                    subtree.update_rectangles((x, y, w, height))
-                    x += w
-                self._subtrees[-1].update_rectangles((x, y, width - x, height))
-            else:
-                h = 0
-                for subtree in self._subtrees[:-1]:
-                    h = int((subtree.data_size / self.data_size) * height)
-                    subtree.update_rectangles((x, y, width, h))
-                    y += h
-                # The last subtree
-                self._subtrees[-1].update_rectangles((x, y, width, height - y))
+        if self.data_size != 0:
+            self.rect = rect
+            x, y, width, height = rect
+            if self._subtrees:
+                if width > height:
+                    for subtree in self._subtrees[:-1]:
+                        w = int((subtree.data_size / self.data_size) * width)
+                        subtree.update_rectangles((x, y, w, height))
+                        x += w
+                    self._subtrees[-1].update_rectangles(
+                        (x, y, width - x, height))
+                else:
+                    for subtree in self._subtrees[:-1]:
+                        h = int((subtree.data_size / self.data_size) * height)
+                        subtree.update_rectangles((x, y, width, h))
+                        y += h
+                    # The last subtree
+                    self._subtrees[-1].update_rectangles(
+                        (x, y, width, height - y))
+        else:
+            self.rect = (0, 0, 0, 0)
 
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
@@ -168,17 +171,7 @@ class TMTree:
         to fill it with.
         """
         # TODO: (Task 2) Complete the body of this method.
-        # Come back after Task 4
-        # if self.is_empty():
-        #     return []
-        # elif not self._expanded or not self._subtrees:
-        #     return [(self.rect, self._colour)]
-        # else:
-        #     lst = []
-        #     for t in self._subtrees:
-        #         lst.append(t.get_rectangles())
-        #     return lst
-        if self.is_empty():
+        if self.is_empty() or self.data_size == 0:
             return []
         elif not self._subtrees or not self._expanded:
             return [(self.rect, self._colour)]
@@ -207,10 +200,19 @@ class TMTree:
             else:
                 return None
         else:
-            # print("Expanded", pos)
+            matched = []
             for t in self._subtrees:
                 if t.get_tree_at_position(pos) is not None:
-                    return t.get_tree_at_position(pos)
+                    matched.append(t.get_tree_at_position(pos))
+            if len(matched) > 1:
+                dist = []
+                for tree in matched:
+                    dist.append(math.sqrt(math.pow(tree.rect[0], 2) +
+                                          math.pow(tree.rect[1],
+                                                   2)))
+                return matched[dist.index(min(dist))]
+            elif len(matched) == 1:
+                return matched[0]
             return None
 
     def update_data_sizes(self) -> int:
@@ -220,8 +222,8 @@ class TMTree:
         If this tree is a leaf, return its size unchanged.
         """
         # TODO: (Task 4) Complete the body of this method.
+        self.data_size = 0
         if self._subtrees:
-            self.data_size = 0
             for t in self._subtrees:
                 self.data_size += t.data_size
         if self._parent_tree:
@@ -234,8 +236,10 @@ class TMTree:
         """
         # TODO: (Task 4) Complete the body of this method.
         if not self._subtrees and destination._subtrees:
+            parent = self._parent_tree
             self._parent_tree._subtrees.remove(self)
             self._parent_tree = destination
+            parent.update_data_sizes()
             destination._subtrees.append(self)
             destination.update_data_sizes()
         else:
