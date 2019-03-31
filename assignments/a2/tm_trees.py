@@ -140,126 +140,136 @@ class TMTree:
         # Programming tip: use "tuple unpacking assignment" to easily extract
         # elements of a rectangle, as follows.
         # x, y, width, height = rect
-        if self.data_size == 0:
-            self.rect = ()
+
+        # Do i need this?
+        # if self.data_size == 0:
+        #     self.rect = ()
         # leaves
-        elif not self._subtrees:
-            self.rect = rect
-        # node
+        self.rect = rect
+        x, y, width, height = rect
+        if width > height:
+            w = 0
+            for subtree in self._subtrees[:-1]:
+                w = int((subtree.data_size / self.data_size) * width)
+                subtree.rect = (x, y, w, height)
+                subtree.update_rectangles((x, y, w, height))
+                x += w
+            # The last subtree
+            temp = (x, y, width - w, height)
+            self._subtrees[-1].rect = (x, y, width - w, height)
         else:
-            x, y, width, height = rect
-            if width > height:
-                w = 0
-                for subtree in self._subtrees[:-1]:
-                    w = int((subtree.data_size / self.data_size) * width)
-                    subtree.rect = (x, y, w, height)
-                    subtree.update_rectangles((x, y, w, height))
-                    x += w
-                # The last subtree
-                self._subtrees[-1].rect = (x, y, width - w, height)
-            else:
-                h = 0
-                for subtree in self._subtrees[:-1]:
-                    h = int((subtree.data_size / self.data_size) * height)
-                    subtree.rect = (x, y, width, h)
-                    subtree.update_rectangles((x, y, width, h))
-                    y += h
+            h = 0
+            for subtree in self._subtrees[:-1]:
+                h = int((subtree.data_size / self.data_size) * height)
+                subtree.rect = (x, y, width, h)
+                subtree.update_rectangles((x, y, width, h))
+                y += h
+            # The last subtree
+            self._subtrees[-1].rect = (x, y, width, height - h)
 
-
-def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
-                                       Tuple[int, int, int]]]:
-    """Return a list with tuples for every leaf in the displayed-tree
-    rooted at this tree. Each tuple consists of a tuple that defines the
-    appropriate pygame rectangle to display for a leaf, and the colour
-    to fill it with.
-    """
-    # TODO: (Task 2) Complete the body of this method.
-    # Come back after Task 4
-    rect = []
-    if self._expanded:
-        for subtree in self._subtrees:
-            if self._expanded:
-                rect.extend(subtree.get_rectangles())
-            else:
-                rect.append((subtree.rect, subtree._colour))
-    elif not self._expanded and not self._parent_tree:
+    def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
+                                           Tuple[int, int, int]]]:
+        """Return a list with tuples for every leaf in the displayed-tree
+        rooted at this tree. Each tuple consists of a tuple that defines the
+        appropriate pygame rectangle to display for a leaf, and the colour
+        to fill it with.
+        """
+        # TODO: (Task 2) Complete the body of this method.
+        # Come back after Task 4
+        if self.data_size == 0:
+            return []
+        rect = []
+        if self._expanded:
+            for subtree in self._subtrees:
+                if self._expanded:
+                    rect.extend(subtree.get_rectangles())
+                else:
+                    rect.append((subtree.rect, subtree._colour))
+        elif not self._expanded and not self._parent_tree:
+            return [(self.rect, self._colour)]
+        # return rect
         return [(self.rect, self._colour)]
-    return rect
 
+    def get_tree_at_position(self, pos: Tuple[int, int]) -> Optional[TMTree]:
+        """Return the leaf in the displayed-tree rooted at this tree whose
+        rectangle contains position <pos>, or None if <pos> is outside of this
+        tree's rectangle.
 
-def get_tree_at_position(self, pos: Tuple[int, int]) -> Optional[TMTree]:
-    """Return the leaf in the displayed-tree rooted at this tree whose
-    rectangle contains position <pos>, or None if <pos> is outside of this
-    tree's rectangle.
+        If <pos> is on the shared edge between two rectangles, return the
+        tree represented by the rectangle that is closer to the origin.
+        """
+        # TODO: (Task 3) Complete the body of this method
+        if not self._expanded:
+            x, y, width, height = self.rect
+            if (x <= pos[0] <= x + width) and (y <= pos[1] <= y + height):
+                return self
+            else:
+                return None
+        else:
+            # t_lst = [t for t in self._subtrees if t.get_tree_at_position(pos)]
+            # c_lst = []
+            # for t in t_lst:
+            #     c_lst.append(math.sqrt(t.rect[0] ^ 2 + t.rect[1] ^ 2))
+            return self
+            # return t_lst[c_lst.index(min(c_lst))]
 
-    If <pos> is on the shared edge between two rectangles, return the
-    tree represented by the rectangle that is closer to the origin.
-    """
-    # TODO: (Task 3) Complete the body of this method
+    def update_data_sizes(self) -> int:
+        """Update the data_size for this tree and its subtrees, based on the
+        size of their leaves, and return the new size.
 
+        If this tree is a leaf, return its size unchanged.
+        """
+        # TODO: (Task 4) Complete the body of this method.
 
-def update_data_sizes(self) -> int:
-    """Update the data_size for this tree and its subtrees, based on the
-    size of their leaves, and return the new size.
+    def move(self, destination: TMTree) -> None:
+        """If this tree is a leaf, and <destination> is not a leaf, move this
+        tree to be the last subtree of <destination>. Otherwise, do nothing.
+        """
+        # TODO: (Task 4) Complete the body of this method.
 
-    If this tree is a leaf, return its size unchanged.
-    """
-    # TODO: (Task 4) Complete the body of this method.
+    def change_size(self, factor: float) -> None:
+        """Change the value of this tree's data_size attribute by <factor>.
 
+        Always round up the amount to change, so that it's an int, and
+        some change is made.
 
-def move(self, destination: TMTree) -> None:
-    """If this tree is a leaf, and <destination> is not a leaf, move this
-    tree to be the last subtree of <destination>. Otherwise, do nothing.
-    """
-    # TODO: (Task 4) Complete the body of this method.
+        Do nothing if this tree is not a leaf.
+        """
+        # TODO: (Task 4) Complete the body of this method
 
+    # TODO: (Task 5) Write the methods expand, expand_all, collapse, and
+    # TODO: collapse_all, and add the displayed-tree functionality to the
+    # TODO: methods from Tasks 2 and 3
 
-def change_size(self, factor: float) -> None:
-    """Change the value of this tree's data_size attribute by <factor>.
+    # Methods for the string representation
+    def get_path_string(self, final_node: bool = True) -> str:
+        """Return a string representing the path containing this tree
+        and its ancestors, using the separator for this tree between each
+        tree's name. If <final_node>, then add the suffix for the tree.
+        """
+        if self._parent_tree is None:
+            path_str = self._name
+            if final_node:
+                path_str += self.get_suffix()
+            return path_str
+        else:
+            path_str = (self._parent_tree.get_path_string(False) +
+                        self.get_separator() + self._name)
+            if final_node or len(self._subtrees) == 0:
+                path_str += self.get_suffix()
+            return path_str
 
-    Always round up the amount to change, so that it's an int, and
-    some change is made.
+    def get_separator(self) -> str:
+        """Return the string used to separate names in the string
+        representation of a path from the tree root to this tree.
+        """
+        raise NotImplementedError
 
-    Do nothing if this tree is not a leaf.
-    """
-    # TODO: (Task 4) Complete the body of this method
-
-
-# TODO: (Task 5) Write the methods expand, expand_all, collapse, and
-# TODO: collapse_all, and add the displayed-tree functionality to the
-# TODO: methods from Tasks 2 and 3
-
-# Methods for the string representation
-def get_path_string(self, final_node: bool = True) -> str:
-    """Return a string representing the path containing this tree
-    and its ancestors, using the separator for this tree between each
-    tree's name. If <final_node>, then add the suffix for the tree.
-    """
-    if self._parent_tree is None:
-        path_str = self._name
-        if final_node:
-            path_str += self.get_suffix()
-        return path_str
-    else:
-        path_str = (self._parent_tree.get_path_string(False) +
-                    self.get_separator() + self._name)
-        if final_node or len(self._subtrees) == 0:
-            path_str += self.get_suffix()
-        return path_str
-
-
-def get_separator(self) -> str:
-    """Return the string used to separate names in the string
-    representation of a path from the tree root to this tree.
-    """
-    raise NotImplementedError
-
-
-def get_suffix(self) -> str:
-    """Return the string used at the end of the string representation of
-    a path from the tree root to this tree.
-    """
-    raise NotImplementedError
+    def get_suffix(self) -> str:
+        """Return the string used at the end of the string representation of
+        a path from the tree root to this tree.
+        """
+        raise NotImplementedError
 
 
 class FileSystemTree(TMTree):
