@@ -103,10 +103,11 @@ class TMTree:
         self._parent_tree = None
 
         # You will change this in Task 5
-        if len(self._subtrees) > 0:
-            self._expanded = True
-        else:
-            self._expanded = False
+        # if len(self._subtrees) > 0:
+        #     self._expanded = True
+        # else:
+        #     self._expanded = False
+        self._expanded = False
 
         # TODO: (Task 1) Complete this initializer by doing two things:
         # 1. Initialize self._colour and self.data_size, according to the
@@ -149,7 +150,7 @@ class TMTree:
                     w = int((subtree.data_size / self.data_size) * width)
                     subtree.update_rectangles((x, y, w, height))
                     x += w
-                self._subtrees[-1].update_rectangles((x, y, width-x, height))
+                self._subtrees[-1].update_rectangles((x, y, width - x, height))
             else:
                 h = 0
                 for subtree in self._subtrees[:-1]:
@@ -157,7 +158,7 @@ class TMTree:
                     subtree.update_rectangles((x, y, width, h))
                     y += h
                 # The last subtree
-                self._subtrees[-1].update_rectangles((x, y, width, height-y))
+                self._subtrees[-1].update_rectangles((x, y, width, height - y))
 
     def get_rectangles(self) -> List[Tuple[Tuple[int, int, int, int],
                                            Tuple[int, int, int]]]:
@@ -197,6 +198,7 @@ class TMTree:
         """
         # TODO: (Task 3) Complete the body of this method
         if not self._expanded or not self._subtrees:
+            # print("Inside not expanded", pos)
             if self._name == "activites":
                 temp = "Roney Thomas"
             x, y, width, height = self.rect
@@ -205,17 +207,11 @@ class TMTree:
             else:
                 return None
         else:
-            print(pos)
+            # print("Expanded", pos)
             for t in self._subtrees:
                 if t.get_tree_at_position(pos) is not None:
                     return t.get_tree_at_position(pos)
             return None
-            # t_lst = [t for t in self._subtrees if t.get_tree_at_position(pos)]
-            # c_lst = []
-            # for t in t_lst:
-            #     c_lst.append(math.sqrt(t.rect[0] ^ 2 + t.rect[1] ^ 2))
-            # return self
-            # return t_lst[c_lst.index(min(c_lst))]
 
     def update_data_sizes(self) -> int:
         """Update the data_size for this tree and its subtrees, based on the
@@ -237,6 +233,13 @@ class TMTree:
         tree to be the last subtree of <destination>. Otherwise, do nothing.
         """
         # TODO: (Task 4) Complete the body of this method.
+        if not self._subtrees and destination._subtrees:
+            self._parent_tree._subtrees.remove(self)
+            self._parent_tree = destination
+            destination._subtrees.append(self)
+            destination.update_data_sizes()
+        else:
+            temp = "roney"
 
     def change_size(self, factor: float) -> None:
         """Change the value of this tree's data_size attribute by <factor>.
@@ -247,10 +250,41 @@ class TMTree:
         Do nothing if this tree is not a leaf.
         """
         # TODO: (Task 4) Complete the body of this method
+        if not self._subtrees and factor != 0:
+            delta = math.ceil(abs(self.data_size * factor))
+            self.data_size += delta * factor / abs(factor)
+            self.data_size = max(1, self.data_size)
+        if self._parent_tree is not None:
+            self._parent_tree.update_data_sizes()
 
     # TODO: (Task 5) Write the methods expand, expand_all, collapse, and
     # TODO: collapse_all, and add the displayed-tree functionality to the
     # TODO: methods from Tasks 2 and 3
+
+    def expand(self):
+        self._expanded = True
+
+    def expand_all(self):
+        self._expanded = True
+        for tree in self._subtrees:
+            tree.expand_all()
+
+    def _deep_collapse(self):
+        self._expanded = False
+        for tree in self._subtrees:
+            tree._deep_collapse()
+
+    def collapse(self):
+        self._expanded = False
+        if self._parent_tree:
+            self._parent_tree._deep_collapse()
+
+    def collapse_all(self):
+        root = self
+        while root._parent_tree:
+            root = root._parent_tree
+            print(root._name)
+        root._deep_collapse()
 
     # Methods for the string representation
     def get_path_string(self, final_node: bool = True) -> str:
