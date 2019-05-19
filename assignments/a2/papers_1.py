@@ -72,6 +72,10 @@ class PaperTree(TMTree):
     === Private Attributes ===
     TODO: Add any of your new private attributes here.
     These should store information about this paper's <authors> and <doi>.
+    _authors:
+        Name of the author(s)
+    _doi:
+        Digital Object Identifier of the paper the object represents
 
     === Inherited Attributes ===
     rect:
@@ -96,8 +100,8 @@ class PaperTree(TMTree):
     """
 
     # TODO: Add the type contracts for your new attributes here
-    _authors: str
     _doi: str
+    _authors: str
 
     def __init__(self, name: str, subtrees: List[TMTree], authors: str = '',
                  doi: str = '', citations: int = 0, by_year: bool = True,
@@ -117,30 +121,35 @@ class PaperTree(TMTree):
         """
         # TODO: Complete this initializer. Your implementation must not
         # TODO: duplicate anything done in the superclass initializer.
-        self._authors = authors
         self._doi = doi
+        self._authors = authors
+
+        TMTree.__init__(self, name, subtrees, citations)
+
         if all_papers:
-            p_dict = _load_papers_to_dict(by_year)
-            subtrees = _build_tree_from_dict(p_dict)
-        if subtrees:
-            data_size = 0
-            for tree in subtrees:
-                tree._parent_tree = self
-                data_size += tree.data_size
+            paper_dict = _load_papers_to_dict(by_year)
+            self._subtrees = _build_tree_from_dict(paper_dict)
+
+        if not self._subtrees:
+            self.data_size = citations
         else:
-            data_size = citations
-        super().__init__(name, subtrees, data_size)
+            self.data_size = 0
+            for t in self._subtrees:
+                self.data_size += t.data_size
+                t._parent_tree = self
 
     def get_separator(self) -> str:
         """Return the file separator for this OS.
         """
-        return "\\"
+        return '\\'
 
     def get_suffix(self) -> str:
         """Return the final descriptor of this tree.
         """
         if len(self._subtrees) == 0:
             return ' (paper)'
+        elif self._parent_tree is None:
+            return ' (root)'
         else:
             return ' (category)'
 
@@ -150,69 +159,76 @@ def _load_papers_to_dict(by_year: bool = True) -> Dict:
 
     If <by_year>, then use years as the roots of the subtrees of the root of
     the whole tree. Otherwise, ignore years and use categories only.
+    >>> d = _load_papers_to_dict()
+    >>> d['1973']['FLP']['other']['language agnostic approaches']\
+['Separation of Introductory Programming and Language Instruction']\
+['citations']
+    6
+    >>> d
     """
     # TODO: Implement this helper, or remove it if you do not plan to use it
-    # p_dict = {}
-    # with open(DATA_FILE, mode='r') as csv_file:
-    #     csv_reader = csv.DictReader(csv_file)
-    #     if by_year:
-    #         for row in csv_reader:
-    #             if row["Year"] not in p_dict:
-    #                 p_dict[row["Year"]] = {}
-    #             _recursive_dict(row["Category"],
-    #                             {"Title": row["Title"],
-    #                              "Citations": row[
-    #                                  "Citations"], "Author": row["Author"],
-    #                              "Url": row["Url"]}
-    #                             , p_dict[row["Year"]])
-    #     else:
-    #         for row in csv_reader:
-    #             _recursive_dict(row["Category"],
-    #                             {"Title": row["Title"],
-    #                              "Citations": row[
-    #                                  "Citations"], "Author": row["Author"],
-    #                              "Url": row["Url"]}
-    #                             , p_dict)
-    # print(p_dict)
-    # return p_dict
+    res = {}
+    with open(DATA_FILE, 'r') as f:
+        f.readline()
+        reader = csv.reader(f, delimiter=',')
+        if by_year:
+            for row in reader:
+                if row[2] not in res:
+                    res[row[2]] = []
+                res[row[2]].append(row)
+            for year in res:
+                year_lst = res[year]
+                res[year] = {}
+                for row in year_lst:
+                    category = row.pop(3).split(': ')
+                    _category_helper(res[year], category, row, 0)
+        else:
+            for row in reader:
+                category = row.pop(3).split(': ')
+                _category_helper(res, category, row, 0)
+    return res
 
 
-
-def _recursive_dict(k, v, o):
-    k, *rest = k.split(": ", 1)
-    if rest:
-        _recursive_dict(rest[0], v, o.setdefault(k, {}))
+def _category_helper(dictionary: Dict, category: List[str],
+                     args: List, index: int) -> None:
+    """ Load the information of one line (split into a list, and the category
+    column extracted as a separate parameter) into a given dictionary.
+    Index represents the depth in the dictionary.
+    """
+    if category[index] not in dictionary:
+        dictionary[category[index]] = {}
+    if index < len(category) - 1:
+        _category_helper(dictionary[category[index]],
+                         category[index + 1:], args, index)
     else:
-        o[k] = v
+        paper_info = dict()
+        paper_info['authors'] = args[0]
+        # dictionary[category[index]]['year'] = args[2]
+        paper_info['url'] = args[3]
+        paper_info['citations'] = int(args[4])
+        dictionary[category[index]][args[1]] = paper_info
 
 
 def _build_tree_from_dict(nested_dict: Dict) -> List[PaperTree]:
     """Return a list of trees from the nested dictionary <nested_dict>.
+    >>> d = _load_papers_to_dict()
+    >>> t_lst = _build_tree_from_dict(d)
     """
     # TODO: Implement this helper, or remove it if you do not plan to use it
-    lst = []
-    print(nested_dict)
-    print("#####")
-    for k in nested_dict:
-        v = nested_dict[k]
-        print(k)
-        if 'Citations' not in v.keys():
-            subtree = _build_tree_from_dict(v)
-            s = 0
-            for items in subtree:
-                s += items.data_size
-            lst.append(PaperTree(k, subtree, citations=s))
+    res = []
+    for key in nested_dict:
+        this = nested_dict[key]
+        if 'citations' not in this:
+            sub_trees = _build_tree_from_dict(this)
+            res.append(PaperTree(key, sub_trees))
         else:
-            lst.append(PaperTree(v['Title'], [], v['Author'], v['Url'],
-                                 int(v['Citations'])))
-            print(v['Title'])
-    print("######")
-    return lst
+            res.append(PaperTree(key, [], this['authors'], this['url'],
+                                 this['citations']))
+    return res
 
 
 if __name__ == '__main__':
     import python_ta
-
     python_ta.check_all(config={
         'allowed-import-modules': ['python_ta', 'typing', 'csv', 'tm_trees'],
         'allowed-io': ['_load_papers_to_dict'],

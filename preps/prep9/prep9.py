@@ -246,11 +246,14 @@ class BinarySearchTree:
         if self.is_empty():
             return []
         s_l = []
-        if not self._left.is_empty():
-            s_l.extend(self._left.items())
+        # if not self._left.is_empty():
+        #     s_l.extend(self._left.items())
+        # s_l.append(self._root)
+        # if not self._right.is_empty():
+        #     s_l.extend(self._right.items())
+        s_l.extend(self._left.items())
         s_l.append(self._root)
-        if not self._right.is_empty():
-            s_l.extend(self._right.items())
+        s_l.extend(self._right.items())
         return s_l
 
     def smaller(self, item: Any) -> List:

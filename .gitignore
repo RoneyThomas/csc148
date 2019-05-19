@@ -3,3 +3,4 @@ settings.jar
 .idea
 __pycache__/
 pyta_report.html
+.DS_Store
