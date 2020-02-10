@@ -125,16 +125,12 @@ class MultipleChoiceQuestion(Question):
         question.
         """
         # TODO: complete the body of this method
-        if isinstance(answer, list):
-            for a in answer:
-                if a not in self._options:
-                    return False
-                return True
-        elif isinstance(answer, str):
-            if answer in self._options:
-                return True
-            else:
-                return False
+        if not isinstance(answer.content, str):
+            return False
+        if answer.content in self._options:
+            return True
+        else:
+            return False
 
     def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
         """
@@ -199,6 +195,8 @@ class NumericQuestion(Question):
         minimum and maximum (inclusive) possible answers to this question.
         """
         # TODO: complete the body of this method
+        if not isinstance(answer.content, int):
+            return False
         if self._min_ <= answer.content <= self._max_:
             return True
         return False
@@ -304,26 +302,26 @@ class CheckboxQuestion(MultipleChoiceQuestion):
     id: int
     text: str
 
-    def __init__(self, id_: int, text: str, options: List[str]) -> None:
-        """
-        Initialize a question with the text <text> and id <id> and
-        possible answers <options>.
+    # def __init__(self, id_: int, text: str, options: List[str]) -> None:
+    #     """
+    #     Initialize a question with the text <text> and id <id> and
+    #     possible answers <options>.
+    #
+    #     === Precondition ===
+    #     No two elements in <options> are the same string
+    #     <options> contains at least two elements
+    #     """
+    #     # TODO: complete the body of this method
+    #     super().__init__(id_, text, options)
 
-        === Precondition ===
-        No two elements in <options> are the same string
-        <options> contains at least two elements
-        """
-        # TODO: complete the body of this method
-        super().__init__(id_, text, options)
-
-    def __str__(self) -> str:
-        """
-        Return a string representation of this question including the
-        text of the question and a description of the possible answers.
-
-        You can choose the precise format of this string.
-        """
-        # TODO: complete the body of this method
+    # def __str__(self) -> str:
+    #     """
+    #     Return a string representation of this question including the
+    #     text of the question and a description of the possible answers.
+    #
+    #     You can choose the precise format of this string.
+    #     """
+    #     # TODO: complete the body of this method
 
     def validate_answer(self, answer: Answer) -> bool:
         """
@@ -333,6 +331,19 @@ class CheckboxQuestion(MultipleChoiceQuestion):
         unique possible answers to this question.
         """
         # TODO: complete the body of this method
+        # Checking if an answer is list
+        if not isinstance(answer.content, list):
+            return False
+        # Checking if answer.content is not empty
+        if answer.content:
+            # Checking if answer.content is unique
+            if len(set(answer.content)) == len(answer.content):
+                # Checking if answer.content is valid to self._options
+                for a in answer.content:
+                    if a not in self._options:
+                        return False
+                    return True
+        return False
 
     def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
         """
@@ -352,6 +363,8 @@ class CheckboxQuestion(MultipleChoiceQuestion):
         <answer1> and <answer2> are both valid answers to this question
         """
         # TODO: complete the body of this method
+        return len(set(answer1.content).intersection(answer2.content)) / len(
+            set(answer1.content + answer2.content))
 
 
 class Answer:
