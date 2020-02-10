@@ -23,7 +23,7 @@ This file contains classes that describe different types of criteria used to
 evaluate a group of answers to a survey question.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Generator
 
 if TYPE_CHECKING:
     from survey import Question, Answer
@@ -54,6 +54,11 @@ class Criterion:
         """
         raise NotImplementedError
 
+    def _combinations(self, answers: List[Answer]) -> Generator:
+        for index, answer in enumerate(answers):
+            for j in range(index + 1, len(answers)):
+                yield [answer, answers[j]]
+
 
 class HomogeneousCriterion(Criterion):
     # TODO: make this a child class of another class defined in this file
@@ -83,6 +88,15 @@ class HomogeneousCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
+        if len(answers) is 1 and answers[0].is_valid(question):
+            return 1.0
+        for a in answers:
+            if not a.is_valid(question):
+                raise InvalidAnswerError
+        score = []
+        for a in list(self._combinations(answers)):
+            score.append(question.get_similarity(a[0], a[1]))
+        return sum(score) / len(score)
 
 
 class HeterogeneousCriterion(Criterion):
@@ -112,6 +126,16 @@ class HeterogeneousCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
+        if len(answers) is 1 and answers[0].is_valid(question):
+            return 0.0
+        for a in answers:
+            if not a.is_valid(question):
+                raise InvalidAnswerError
+        score = []
+        for a in list(self._combinations(answers)):
+            score.append(question.get_similarity(a[0], a[1]))
+        return 1 - (sum(score) / len(score))
+
 
 
 class LonelyMemberCriterion(Criterion):
@@ -140,6 +164,16 @@ class LonelyMemberCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
+        # Do we need to handle a case where we only have one answer
+        if len(answers) is 1 and answers[0].is_valid(question):
+            return 1.0
+        for a in answers:
+            if not a.is_valid(question):
+                raise InvalidAnswerError
+        for a in list(self._combinations(answers)):
+            if a[0].content != a[1].content:
+                return 0.0
+        return 1.0
 
 
 if __name__ == '__main__':

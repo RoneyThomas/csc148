@@ -23,7 +23,7 @@ This file contains classes that describe a university course and the students
 who are enrolled in these courses.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Tuple, Optional
+from typing import TYPE_CHECKING, List, Tuple, Optional, Dict
 
 if TYPE_CHECKING:
     from survey import Answer, Survey, Question
@@ -61,6 +61,8 @@ class Student:
 
     id: int
     name: str
+    # Added for recording students question and answers
+    _responses: Dict[int: (Question, Answer)]
 
     def __init__(self, id_: int, name: str) -> None:
         """ Initialize a student with name <name> and id <id>"""
@@ -79,12 +81,16 @@ class Student:
         id as <question> and that answer is a valid answer for <question>.
         """
         # TODO: complete the body of this method
+        if question.id in self._responses:
+            return question.validate_answer(self._responses[1])
+        return False
 
     def set_answer(self, question: Question, answer: Answer) -> None:
         """
         Record this student's answer <answer> to the question <question>.
         """
         # TODO: complete the body of this method
+        self._responses[question.id] = (question, answer)
 
     def get_answer(self, question: Question) -> Optional[Answer]:
         """
@@ -92,6 +98,10 @@ class Student:
         this student does not have an answer to <question>
         """
         # TODO: complete the body of this method
+        if question.id in self._responses:
+            return self._responses[question.id]
+        else:
+            return None
 
 
 class Course:
