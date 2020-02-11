@@ -137,7 +137,6 @@ class HeterogeneousCriterion(Criterion):
         return 1 - (sum(score) / len(score))
 
 
-
 class LonelyMemberCriterion(Criterion):
     # TODO: make this a child class of another class defined in this file
     """ A criterion used to measure the quality of a group of students
