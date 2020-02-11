@@ -425,10 +425,14 @@ class Survey:
         and should use 1 as a default weight.
         """
         # TODO: complete the body of this method
+        self._questions = {q.id: q for q in questions}
+        self._default_weight = 1
+        self._default_criterion = HomogeneousCriterion()  # Am i doing it right?
 
     def __len__(self) -> int:
         """ Return the number of questions in this survey """
         # TODO: complete the body of this method
+        return len(self._questions)
 
     def __contains__(self, question: Question) -> bool:
         """
@@ -436,6 +440,7 @@ class Survey:
         id as <question>.
         """
         # TODO: complete the body of this method
+        return True if question.id in self._questions else False
 
     def __str__(self) -> str:
         """
@@ -445,10 +450,12 @@ class Survey:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
+        return ' '.join(f'{q.text}' for q in self._questions.values())
 
     def get_questions(self) -> List[Question]:
         """ Return a list of all questions in this survey """
         # TODO: complete the body of this method
+        return list(self._questions.values())
 
     def _get_criterion(self, question: Question) -> Criterion:
         """
@@ -461,6 +468,10 @@ class Survey:
         <question>.id occurs in this survey
         """
         # TODO: complete the body of this method
+        if question.id in self._questions:
+            return self._criteria[question.id]
+        else:
+            return self._default_criterion
 
     def _get_weight(self, question: Question) -> int:
         """
@@ -473,6 +484,10 @@ class Survey:
         <question>.id occurs in this survey
         """
         # TODO: complete the body of this method
+        if question.id in self._questions:
+            return self._weights[question.id]
+        else:
+            return self._default_weight
 
     def set_weight(self, weight: int, question: Question) -> bool:
         """
@@ -482,6 +497,10 @@ class Survey:
         and return False instead.
         """
         # TODO: complete the body of this method
+        if question.id in self._questions:
+            self._weights[question.id] = weight
+            return True
+        return False
 
     def set_criterion(self, criterion: Criterion, question: Question) -> bool:
         """
@@ -492,6 +511,10 @@ class Survey:
         and return False instead.
         """
         # TODO: complete the body of this method
+        if question.id in self._questions:
+            self._criteria[question.id] = criterion
+            return True
+        return False
 
     def score_students(self, students: List[Student]) -> float:
         """
@@ -515,6 +538,16 @@ class Survey:
             survey
         """
         # TODO: complete the body of this method
+        score: float = 0.0
+        for question in self._questions.values():
+            for student in students:
+                ans = student.get_answer(question)
+                ans_score = self._get_criterion(question).score_answers(
+                    question,
+                    ans)
+                wt = self._get_weight(question)
+                score += ans_score * wt
+        return score / len(students)
 
     def score_grouping(self, grouping: Grouping) -> float:
         """ Return a score for <grouping> calculated based on the answers of
@@ -533,6 +566,12 @@ class Survey:
             in this survey
         """
         # TODO: complete the body of this method
+        score: float = 0.0
+        if not grouping:
+            return 0.0
+        for group in grouping:  # Is this even right?
+            score += self.score_students(group.get_members())
+        return score / len(grouping)
 
 
 if __name__ == '__main__':
