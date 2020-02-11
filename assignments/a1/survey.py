@@ -426,6 +426,7 @@ class Survey:
         """
         # TODO: complete the body of this method
         self._questions = {q.id: q for q in questions}
+        self._criteria, self._weights = {}, {}
         self._default_weight = 1
         self._default_criterion = HomogeneousCriterion()  # Am i doing it right?
 

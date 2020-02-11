@@ -88,7 +88,7 @@ class HomogeneousCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
-        if len(answers) is 1 and answers[0].is_valid(question):
+        if len(answers) == 1 and answers[0].is_valid(question):
             return 1.0
         for a in answers:
             if not a.is_valid(question):
@@ -126,7 +126,7 @@ class HeterogeneousCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
-        if len(answers) is 1 and answers[0].is_valid(question):
+        if len(answers) == 1 and answers[0].is_valid(question):
             return 0.0
         for a in answers:
             if not a.is_valid(question):
@@ -164,7 +164,7 @@ class LonelyMemberCriterion(Criterion):
         """
         # TODO: complete the body of this method
         # Do we need to handle a case where we only have one answer
-        if len(answers) is 1 and answers[0].is_valid(question):
+        if len(answers) == 1 and answers[0].is_valid(question):
             return 1.0
         for a in answers:
             if not a.is_valid(question):

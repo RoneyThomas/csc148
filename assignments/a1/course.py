@@ -69,6 +69,7 @@ class Student:
         # TODO: complete the body of this method
         self.id = id_
         self.name = name
+        self._responses = {}
 
     def __str__(self) -> str:
         """ Return the name of this student """
