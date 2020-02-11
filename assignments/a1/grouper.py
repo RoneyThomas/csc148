@@ -219,11 +219,11 @@ class GreedyGrouper(Grouper):
         members = []
         index = 0
         while len(students):
-            if len(members) is 0:
+            if len(members) == 0:
                 members.append(students[index])
                 students.pop(index)
                 score.pop(index)
-            elif len(students) is 1:
+            elif len(students) == 1:
                 members.append(students[index])
                 students.pop(index)
                 score.pop(index)
