@@ -568,9 +568,9 @@ class Survey:
         """
         # TODO: complete the body of this method
         score: float = 0.0
-        if not grouping:
+        if not grouping.get_groups():
             return 0.0
-        for group in grouping:  # Is this even right?
+        for group in grouping.get_groups():  # Is this even right?
             score += self.score_students(group.get_members())
         return score / len(grouping)
 
