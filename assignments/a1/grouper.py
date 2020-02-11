@@ -28,6 +28,7 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING, List, Any
 from course import sort_students
+
 if TYPE_CHECKING:
     from survey import Survey
     from course import Course, Student
@@ -50,6 +51,7 @@ def slice_list(lst: List[Any], n: int) -> List[List[Any]]:
     True
     """
     # TODO: complete the body of this function
+    return [lst[i:i + n] for i in range(0, len(lst), n)]
 
 
 def windows(lst: List[Any], n: int) -> List[List[Any]]:
@@ -67,6 +69,7 @@ def windows(lst: List[Any], n: int) -> List[List[Any]]:
     True
     """
     # TODO: complete the body of this function
+    return [lst[i:i + n] for i in range(0, len(lst) - n + 1)]
 
 
 class Grouper:
@@ -91,6 +94,7 @@ class Grouper:
         group_size > 1
         """
         # TODO: complete the body of this method
+        self.group_size = group_size
 
     def make_grouping(self, course: Course, survey: Survey) -> Grouping:
         """ Return a grouping for all students in <course> using the questions
@@ -258,14 +262,18 @@ class Group:
     """
 
     _members: List[Student]
+    _member_id: List[int]
 
     def __init__(self, members: List[Student]) -> None:
         """ Initialize a group with members <members> """
         # TODO: complete the body of this method
+        self._members = members
+        self._member_id = [s.id for s in members]
 
     def __len__(self) -> int:
         """ Return the number of members in this group """
         # TODO: complete the body of this method
+        return len(self._members)
 
     def __contains__(self, member: Student) -> bool:
         """
@@ -273,6 +281,7 @@ class Group:
         as <member>.
         """
         # TODO: complete the body of this method
+        return True if member.id in self._member_id else False
 
     def __str__(self) -> str:
         """
@@ -282,12 +291,14 @@ class Group:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
+        return ' '.join(f'{s.name}' for s in self._members)
 
     def get_members(self) -> List[Student]:
         """ Return a list of members in this group. This list should be a
         shallow copy of the self._members attribute.
         """
         # TODO: complete the body of this method
+        return self._members[:]
 
 
 class Grouping:
@@ -307,10 +318,12 @@ class Grouping:
     def __init__(self) -> None:
         """ Initialize a Grouping that contains zero groups """
         # TODO: complete the body of this method
+        self._groups = []
 
     def __len__(self) -> int:
         """ Return the number of groups in this grouping """
         # TODO: complete the body of this method
+        return len(self._groups)
 
     def __str__(self) -> str:
         """
@@ -332,15 +345,17 @@ class Grouping:
         # TODO: complete the body of this method
 
     def get_groups(self) -> List[Group]:
-        """ Return a list of all groups in this grouping. 
-        This list should be a shallow copy of the self._groups 
+        """ Return a list of all groups in this grouping.
+        This list should be a shallow copy of the self._groups
         attribute.
         """
         # TODO: complete the body of this method
+        return self._groups[:]
 
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={'extra-imports': ['typing',
                                                   'random',
                                                   'survey',
