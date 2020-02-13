@@ -283,12 +283,31 @@ class WindowGrouper(Grouper):
         new group.
         """
         # TODO: complete the body of this method
-        students = windows(
-            sorted(course.students, key=lambda s: getattr(s, "name")),
-            self.group_size)
+        students = sorted(course.students, key=lambda s: getattr(s, "name"))
+        students_windows = windows(students[:self.group_size * 3],
+                                   self.group_size)
         grouper = Grouping()
-        for g in students:
-            grouper.add_group(Group(g))
+        index = 0
+        while len(students) > self.group_size:
+            if len(students) - 1 == index:
+                if survey.score_students(
+                        students[
+                        -1 * self.group_size:]) > survey.score_students(students[:self.group_size]):
+                    grouper.add_group(Group(students[
+                                            -1 * self.group_size:]))
+            else:
+                students_windows = windows(
+                    students[index:index + (self.group_size * 2) - 1],
+                    self.group_size)
+                if survey.score_students(
+                        students_windows[0]) > \
+                        survey.score_students(students_windows[1]):
+                    grouper.add_group(Group(students_windows[0]))
+                students = [student for student in students if
+                            student not in students_windows[0]]
+            index = 0
+        else:
+            index += self.group_size
         return grouper
 
 
