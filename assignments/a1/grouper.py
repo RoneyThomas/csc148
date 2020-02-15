@@ -164,9 +164,8 @@ class RandomGrouper(Grouper):
         members of a group.
         """
         # TODO: complete the body of this method
-        random.shuffle(course.students)
         students = slice_list(
-            random.shuffle(course.students),
+            random.sample(course.students, len(course.students)),
             self.group_size)
         grouper = Grouping()
         for g in students:
