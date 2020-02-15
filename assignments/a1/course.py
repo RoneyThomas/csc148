@@ -83,7 +83,7 @@ class Student:
         """
         # TODO: complete the body of this method
         if question.id in self._responses:
-            return question.validate_answer(self._responses[1])
+            return question.validate_answer(self._responses[question.id][1])
         return False
 
     def set_answer(self, question: Question, answer: Answer) -> None:
@@ -100,7 +100,7 @@ class Student:
         """
         # TODO: complete the body of this method
         if question.id in self._responses:
-            return self._responses[question.id]
+            return self._responses[question.id][1]
         else:
             return None
 
@@ -155,6 +155,11 @@ class Course:
         answer for every question in <survey>.
         """
         # TODO: complete the body of this method
+        for student in self.students:
+            for question in survey.get_questions():
+                if not student.has_answer(question):
+                    return False
+        return True
 
     def get_students(self) -> Tuple[Student, ...]:
         """

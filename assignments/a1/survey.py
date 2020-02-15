@@ -115,7 +115,7 @@ class MultipleChoiceQuestion(Question):
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
-        return f'{self.text} ? \n {self._options}'
+        return f'{self.text} \n {self._options}'
 
     def validate_answer(self, answer: Answer) -> bool:
         """
@@ -125,8 +125,8 @@ class MultipleChoiceQuestion(Question):
         question.
         """
         # TODO: complete the body of this method
-        if not isinstance(answer.content, str):
-            return False
+        # if not isinstance(answer.content, str):
+        #     return False
         if answer.content in self._options:
             return True
         else:
@@ -451,7 +451,8 @@ class Survey:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
-        return ' '.join(f'{q.text}' for q in self._questions.values())
+        response = ' '.join(f'{q}' for q in self._questions.values())
+        return response
 
     def get_questions(self) -> List[Question]:
         """ Return a list of all questions in this survey """
@@ -469,7 +470,7 @@ class Survey:
         <question>.id occurs in this survey
         """
         # TODO: complete the body of this method
-        if question.id in self._questions:
+        if question.id in self._criteria:
             return self._criteria[question.id]
         else:
             return self._default_criterion
@@ -485,7 +486,7 @@ class Survey:
         <question>.id occurs in this survey
         """
         # TODO: complete the body of this method
-        if question.id in self._questions:
+        if question.id in self._weights:
             return self._weights[question.id]
         else:
             return self._default_weight

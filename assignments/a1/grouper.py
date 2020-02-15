@@ -292,7 +292,8 @@ class WindowGrouper(Grouper):
             if len(students) - 1 == index:
                 if survey.score_students(
                         students[
-                        -1 * self.group_size:]) > survey.score_students(students[:self.group_size]):
+                        -1 * self.group_size:]) > survey.score_students(
+                    students[:self.group_size]):
                     grouper.add_group(Group(students[
                                             -1 * self.group_size:]))
             else:
@@ -352,7 +353,8 @@ class Group:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
-        return ' '.join(f'{s.name}' for s in self._members)
+        response = ' '.join(f'{s.name}' for s in self._members)
+        return response
 
     def get_members(self) -> List[Student]:
         """ Return a list of members in this group. This list should be a
@@ -397,8 +399,9 @@ class Grouping:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
-        return '\n'.join(
-            f'{s.name}' for g in self._groups for s in g.get_members())
+        response = '\n'.join(
+            f'{g}' for g in self._groups)
+        return response
 
     def add_group(self, group: Group) -> bool:
         """
