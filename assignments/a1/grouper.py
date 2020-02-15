@@ -131,6 +131,8 @@ class AlphaGrouper(Grouper):
         Hint: the sort_students function might be useful
         """
         # TODO: complete the body of this method
+        # We are sorting here based on name, so can't use course.get_students()
+        # Since course.get_students() returns students sorted by id
         students = slice_list(
             sorted(course.students, key=lambda s: getattr(s, "name")),
             self.group_size)
@@ -211,7 +213,7 @@ class GreedyGrouper(Grouper):
         required to make sure all students in <course> are members of a group.
         """
         # TODO: complete the body of this method
-        students = [course.get_students()]
+        students = list(course.get_students())
         score = [survey.score_students([student]) for student in
                  students]
         grouper = Grouping()

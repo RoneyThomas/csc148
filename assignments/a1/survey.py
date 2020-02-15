@@ -540,16 +540,20 @@ class Survey:
             survey
         """
         # TODO: complete the body of this method
-        score: float = 0.0
-        for question in self._questions.values():
-            for student in students:
-                ans = student.get_answer(question)
-                ans_score = self._get_criterion(question).score_answers(
-                    question,
-                    ans)
-                wt = self._get_weight(question)
-                score += ans_score * wt
-        return score / len(students)
+        if not self._questions:
+            return 0.0
+        try:
+            score: list = []
+            for question in self.get_questions():
+                criterion = self._get_criterion(question)
+                weight = self._get_weight(question)
+                ans: list = []
+                for student in students:
+                    ans.append(student.get_answer(question))
+                score.append(criterion.score_answers(question, ans) * weight)
+            return sum(score)/len(score)
+        except InvalidAnswerError:
+            return 0.0
 
     def score_grouping(self, grouping: Grouping) -> float:
         """ Return a score for <grouping> calculated based on the answers of
