@@ -284,9 +284,7 @@ class WindowGrouper(Grouper):
         new group.
         """
         # TODO: complete the body of this method
-        students = sorted(course.students, key=lambda s: getattr(s, "name"))
-        students_windows = windows(students[:self.group_size * 3],
-                                   self.group_size)
+        students = list(course.get_students())
         grouper = Grouping()
         index = 0
         while len(students) > self.group_size:
@@ -305,9 +303,12 @@ class WindowGrouper(Grouper):
                         students_windows[0]) > \
                         survey.score_students(students_windows[1]):
                     grouper.add_group(Group(students_windows[0]))
-                students = [student for student in students if
-                            student not in students_windows[0]]
-            index = 0
+                    # Removing students added to the grouper
+                    for student in students_windows[0]:
+                        students.remove(student)
+                    index = 0
+                else:
+                    index = students.index(students_windows[1][-1])
         else:
             index += self.group_size
         return grouper
