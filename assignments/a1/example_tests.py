@@ -126,8 +126,8 @@ def survey_(questions, criteria, weights) -> survey.Survey:
     s = survey.Survey(questions)
     for i, question in enumerate(questions):
         if i:
-            s.set_weight(weights[i-1], question)
-        if len(questions)-1 != i:
+            s.set_weight(weights[i - 1], question)
+        if len(questions) - 1 != i:
             s.set_criterion(criteria[i], question)
     return s
 
