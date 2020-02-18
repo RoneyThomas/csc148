@@ -277,7 +277,7 @@ class WindowGrouper(Grouper):
         grouper = Grouping()
         index = 0
         while students:
-            # If we have students just for one group or less then
+            # If we have students just for one group or less
             # Then we form group and break and return grouper
             if len(students) <= self.group_size:
                 grouper.add_group(Group(students[:]))

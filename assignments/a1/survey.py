@@ -127,10 +127,7 @@ class MultipleChoiceQuestion(Question):
         # TODO: complete the body of this method
         # if not isinstance(answer.content, str):
         #     return False
-        if answer.content in self._options:
-            return True
-        else:
-            return False
+        return answer.content in self._options
 
     def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
         """
