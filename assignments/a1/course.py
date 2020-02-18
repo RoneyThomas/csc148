@@ -67,9 +67,10 @@ class Student:
     def __init__(self, id_: int, name: str) -> None:
         """ Initialize a student with name <name> and id <id>"""
         # TODO: complete the body of this method
-        self.id = id_
-        self.name = name
-        self._responses = {}
+        if name != '':
+            self.id = id_
+            self.name = name
+            self._responses = {}
 
     def __str__(self) -> str:
         """ Return the name of this student """
@@ -140,6 +141,10 @@ class Course:
         # Checking if a student in students(to be enrolled) is already enrolled
         students_enrolled = [s.id for s in self.students]
         students_to_enroll = [s.id for s in students]
+
+        if len(set(students_to_enroll)) != len(students_to_enroll):
+            return
+
         if frozenset(students_enrolled).isdisjoint(students_to_enroll):
             # Checking if a student who can be
             # enrolled has name as empty string or null

@@ -49,8 +49,9 @@ class Question:
     def __init__(self, id_: int, text: str) -> None:
         """ Initialize a question with the text <text> """
         # TODO: complete the body of this method
-        self.id = id_
-        self.text = text
+        if text != "":
+            self.id = id_
+            self.text = text
 
     def __str__(self) -> str:
         """
@@ -298,6 +299,7 @@ class CheckboxQuestion(MultipleChoiceQuestion):
 
     id: int
     text: str
+    options: list
 
     # def __init__(self, id_: int, text: str, options: List[str]) -> None:
     #     """
