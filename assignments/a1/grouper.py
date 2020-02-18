@@ -27,7 +27,6 @@ well as a grouping (a group of groups).
 from __future__ import annotations
 import random
 from typing import TYPE_CHECKING, List, Any
-from course import sort_students
 
 if TYPE_CHECKING:
     from survey import Survey
@@ -214,32 +213,22 @@ class GreedyGrouper(Grouper):
         """
         # TODO: complete the body of this method
         students = list(course.get_students())
-        score = [survey.score_students([student]) for student in
-                 students]
         grouper = Grouping()
         members = []
-        index = 0
-        while len(students):
+        while students:
             if len(members) == 0:
-                members.append(students[index])
-                students.pop(index)
-                score.pop(index)
-            elif len(students) == 1:
-                members.append(students[index])
-                students.pop(index)
-                score.pop(index)
-                grouper.add_group(Group(members))
-                break
-            elif len(members) < self.group_size:
-                for i, s in enumerate(score):
-                    if s > score[index]:
-                        index = i
-                members.append(students[index])
-                students.pop(index)
-                score.pop(index)
-                if len(members) == self.group_size:
-                    grouper.add_group(Group(members))
-                    members = []
+                members.append(students.pop(0))
+            if len(members) < self.group_size:
+                score = []
+                for student in students:
+                    score.append(survey.score_students(members + [student]))
+                members.append(students.pop(score.index(max(score))))
+            if len(members) == self.group_size:
+                grouper.add_group(Group(members[:]))
+                members *= 0
+            elif len(students) == 0 & len(members) > 0:
+                grouper.add_group(Group(members[:]))
+                members *= 0
         return grouper
 
 
@@ -286,31 +275,37 @@ class WindowGrouper(Grouper):
         # TODO: complete the body of this method
         students = list(course.get_students())
         grouper = Grouping()
+        members = []
         index = 0
-        while len(students) > self.group_size:
-            if len(students) - 1 == index:
-                if survey.score_students(
-                        students[
-                        -1 * self.group_size:]) > survey.score_students(
-                    students[:self.group_size]):
-                    grouper.add_group(Group(students[
-                                            -1 * self.group_size:]))
+        while students:
+            # If we have students just for one group
+            if len(students) == self.group_size:
+                grouper.add_group(Group(students[:]))
+                students *= 0
+                break
             else:
-                students_windows = windows(
-                    students[index:index + (self.group_size * 2) - 1],
-                    self.group_size)
-                if survey.score_students(
-                        students_windows[0]) > \
-                        survey.score_students(students_windows[1]):
-                    grouper.add_group(Group(students_windows[0]))
-                    # Removing students added to the grouper
-                    for student in students_windows[0]:
-                        students.remove(student)
+                end = index + (self.group_size * 2) - 1
+                # this means we are in the last window
+                # in which case we need to compare it with the first window
+                if end >= len(students) - 1:
+                    if survey.score_students(
+                            students[index:end]) >= survey.score_students(
+                        students[:self.group_size - 1]):
+                        grouper.add_group(Group(students[index:end]))
                     index = 0
-                else:
-                    index = students.index(students_windows[1][-1])
-        else:
-            index += self.group_size
+                student_windows = windows(
+                    students[index:end],
+                    self.group_size)
+                # We need to have two windows compare score
+                if len(student_windows) == 2:
+                    if survey.score_students(
+                            student_windows[0]) >= survey.score_students(
+                        student_windows[1]):
+                        grouper.add_group(Group(student_windows[0]))
+                        students = [student for student in students if
+                                    student not in student_windows[0]]
+                    else:
+                        index += self.group_size
         return grouper
 
 
@@ -416,6 +411,7 @@ class Grouping:
         for student in group.get_members():
             if student.id in self._student_id:
                 return False
+            self._student_id.append(student.id)
         self._groups.append(group)
         return True
 
