@@ -277,13 +277,13 @@ class WindowGrouper(Grouper):
         grouper = Grouping()
         index = 0
         while students:
-            # If we have students just for one group
-            if len(students) == self.group_size:
+            # If we have students just for one group or less then group size
+            if len(students) <= self.group_size:
                 grouper.add_group(Group(students[:]))
                 students *= 0
                 break
             else:
-                end = index + (self.group_size * 2) - 1
+                end = index + self.group_size + 1
                 # this means we are in the last window
                 # in which case we need to compare it with the first window
                 if end >= len(students) - 1:
