@@ -35,6 +35,12 @@ class InvalidAnswerError(Exception):
     """
 
 
+def _combinations(answers: List[Answer]) -> Generator:
+    for index, answer in enumerate(answers):
+        for j in range(index + 1, len(answers)):
+            yield [answer, answers[j]]
+
+
 class Criterion:
     """
     An abstract class representing a criterion used to evaluate the quality of
@@ -53,11 +59,6 @@ class Criterion:
         differently.
         """
         raise NotImplementedError
-
-    def _combinations(self, answers: List[Answer]) -> Generator:
-        for index, answer in enumerate(answers):
-            for j in range(index + 1, len(answers)):
-                yield [answer, answers[j]]
 
 
 class HomogeneousCriterion(Criterion):
@@ -94,7 +95,7 @@ class HomogeneousCriterion(Criterion):
             if not a.is_valid(question):
                 raise InvalidAnswerError
         score = []
-        for a in list(self._combinations(answers)):
+        for a in list(_combinations(answers)):
             score.append(question.get_similarity(a[0], a[1]))
         return sum(score) / len(score)
 
@@ -132,7 +133,7 @@ class HeterogeneousCriterion(Criterion):
             if not a.is_valid(question):
                 raise InvalidAnswerError
         score = []
-        for a in list(self._combinations(answers)):
+        for a in list(_combinations(answers)):
             score.append(question.get_similarity(a[0], a[1]))
         return 1 - (sum(score) / len(score))
 
@@ -169,7 +170,7 @@ class LonelyMemberCriterion(Criterion):
         for a in answers:
             if not a.is_valid(question):
                 raise InvalidAnswerError
-        for a in list(self._combinations(answers)):
+        for a in list(_combinations(answers)):
             if a[0].content != a[1].content:
                 return 0.0
         return 1.0

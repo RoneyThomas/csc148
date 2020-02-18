@@ -277,36 +277,34 @@ class WindowGrouper(Grouper):
         grouper = Grouping()
         index = 0
         while students:
-            # If we have students just for one group or less then group size
+            # If we have students just for one group or less then
+            # Then we form group and break and return grouper
             if len(students) <= self.group_size:
                 grouper.add_group(Group(students[:]))
-                students *= 0
                 break
+            end = index + self.group_size + 1
+            # this means we are in the last window
+            # in which case we need to compare it with the first window
+            if end >= len(students) - 1:
+                current_group = survey.score_students(students[index:end])
+                next_group = survey.score_students(
+                    students[:self.group_size - 1])
+                if current_group >= next_group:
+                    grouper.add_group(Group(students[index:end]))
+                    students = [student for student in students if
+                                student not in students[index:end]]
+                index = 0
+            student_windows = windows(
+                students[index:end],
+                self.group_size)
+            current_group = survey.score_students(student_windows[0])
+            next_group = survey.score_students(student_windows[1])
+            if current_group >= next_group:
+                grouper.add_group(Group(student_windows[0]))
+                students = [student for student in students if
+                            student not in student_windows[0]]
             else:
-                end = index + self.group_size + 1
-                # this means we are in the last window
-                # in which case we need to compare it with the first window
-                if end >= len(students) - 1:
-                    if survey.score_students(
-                            students[index:end]) >= survey.score_students(
-                        students[:self.group_size - 1]):
-                        grouper.add_group(Group(students[index:end]))
-                        students = [student for student in students if
-                                    student not in students[index:end]]
-                    index = 0
-                student_windows = windows(
-                    students[index:end],
-                    self.group_size)
-                # We need to have two windows compare score
-                if len(student_windows) == 2:
-                    if survey.score_students(
-                            student_windows[0]) >= survey.score_students(
-                        student_windows[1]):
-                        grouper.add_group(Group(student_windows[0]))
-                        students = [student for student in students if
-                                    student not in student_windows[0]]
-                    else:
-                        index += self.group_size
+                index += self.group_size
         return grouper
 
 
@@ -341,7 +339,7 @@ class Group:
         as <member>.
         """
         # TODO: complete the body of this method
-        return True if member.id in self._member_id else False
+        return member.id in self._member_id
 
     def __str__(self) -> str:
         """

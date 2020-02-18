@@ -337,12 +337,13 @@ class CheckboxQuestion(MultipleChoiceQuestion):
         # Checking if answer.content is not empty
         if answer.content:
             # Checking if answer.content is unique
-            if len(set(answer.content)) == len(answer.content):
-                # Checking if answer.content is valid to self._options
-                for a in answer.content:
-                    if a not in self._options:
-                        return False
-                    return True
+            if len(set(answer.content)) != len(answer.content):
+                return False
+            # Checking if answer.content is valid to self._options
+            for a in answer.content:
+                if a not in self._options:
+                    return False
+            return True
         return False
 
     def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
@@ -441,7 +442,7 @@ class Survey:
         id as <question>.
         """
         # TODO: complete the body of this method
-        return True if question.id in self._questions else False
+        return question.id in self._questions
 
     def __str__(self) -> str:
         """
@@ -551,7 +552,7 @@ class Survey:
                 for student in students:
                     ans.append(student.get_answer(question))
                 score.append(criterion.score_answers(question, ans) * weight)
-            return sum(score)/len(score)
+            return sum(score) / len(score)
         except InvalidAnswerError:
             return 0.0
 

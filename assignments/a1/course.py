@@ -143,11 +143,10 @@ class Course:
         if frozenset(students_enrolled).isdisjoint(students_to_enroll):
             # Checking if a student who can be
             # enrolled has name as empty string or null
-            if not any(
-                    student.name == "" or student.name is None for student in
-                    students):
-                for student in students:
-                    self.students.append(student)
+            for student in students:
+                if student.name == "" or student.name is None:
+                    return
+            self.students.extend(students)
 
     def all_answered(self, survey: Survey) -> bool:
         """
