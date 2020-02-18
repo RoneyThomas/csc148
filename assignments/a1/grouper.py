@@ -275,7 +275,6 @@ class WindowGrouper(Grouper):
         # TODO: complete the body of this method
         students = list(course.get_students())
         grouper = Grouping()
-        members = []
         index = 0
         while students:
             # If we have students just for one group
@@ -292,6 +291,8 @@ class WindowGrouper(Grouper):
                             students[index:end]) >= survey.score_students(
                         students[:self.group_size - 1]):
                         grouper.add_group(Group(students[index:end]))
+                        students = [student for student in students if
+                                    student not in students[index:end]]
                     index = 0
                 student_windows = windows(
                     students[index:end],
