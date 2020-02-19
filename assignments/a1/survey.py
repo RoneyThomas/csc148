@@ -242,15 +242,6 @@ class YesNoQuestion(Question):
     === Representation Invariants ===
     text is not the empty string
     """
-    id: int
-    text: str
-
-    def __init__(self, id_: int, text: str) -> None:
-        """
-        Initialize a question with the text <text> and id <id>.
-        """
-        # TODO: complete the body of this method
-        super().__init__(id_, text)
 
     def __str__(self) -> str:
         """
@@ -295,9 +286,6 @@ class CheckboxQuestion(MultipleChoiceQuestion):
     === Representation Invariants ===
     text is not the empty string
     """
-
-    id: int
-    text: str
 
     def validate_answer(self, answer: Answer) -> bool:
         """
