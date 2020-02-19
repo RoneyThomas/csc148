@@ -75,7 +75,9 @@ class Question:
         === Precondition ===
         <answer1> and <answer2> are both valid answers to this question
         """
-        raise NotImplementedError
+        if answer1.content == answer2.content:
+            return 1.0
+        return 0.0
 
 
 class MultipleChoiceQuestion(Question):
@@ -128,20 +130,6 @@ class MultipleChoiceQuestion(Question):
         # if not isinstance(answer.content, str):
         #     return False
         return answer.content in self._options
-
-    def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
-        """
-        Return 1.0 iff <answer1>.content and <answer2>.content are equal and
-        0.0 otherwise.
-
-        === Precondition ===
-        <answer1> and <answer2> are both valid answers to this question.
-        """
-        # TODO: complete the body of this method
-        if answer1.content == answer2.content:
-            return 1.0
-        else:
-            return 0.0
 
 
 class NumericQuestion(Question):
@@ -260,19 +248,6 @@ class YesNoQuestion(Question):
         """
         # TODO: complete the body of this method
         return isinstance(answer.content, bool)
-
-    def get_similarity(self, answer1: Answer, answer2: Answer) -> float:
-        """
-        Return 1.0 iff <answer1>.content is equal to <answer2>.content and
-        return 0.0 otherwise.
-
-        === Precondition ===
-        <answer1> and <answer2> are both valid answers to this question
-        """
-        # TODO: complete the body of this method
-        if answer1.content == answer2.content:
-            return 1.0
-        return 0.0
 
 
 class CheckboxQuestion(MultipleChoiceQuestion):
