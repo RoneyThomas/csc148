@@ -14,6 +14,18 @@
           "answer": 0
         },
         {
+          "question_id": 500,
+          "answer": 0
+        },
+        {
+          "question_id": 501,
+          "answer": 0
+        },
+        {
+          "question_id": 502,
+          "answer": 0
+        },
+        {
           "question_id": 90,
           "answer": true
         },
@@ -37,6 +49,18 @@
         },
         {
           "question_id": 499,
+          "answer": 3
+        },
+        {
+          "question_id": 500,
+          "answer": 3
+        },
+        {
+          "question_id": 501,
+          "answer": 3
+        },
+        {
+          "question_id": 502,
           "answer": 3
         },
         {
@@ -67,6 +91,18 @@
           "answer": 10
         },
         {
+          "question_id": 500,
+          "answer": 10
+        },
+        {
+          "question_id": 501,
+          "answer": 10
+        },
+        {
+          "question_id": 502,
+          "answer": 10
+        },
+        {
           "question_id": 90,
           "answer": false
         },
@@ -86,7 +122,19 @@
         },
         {
           "question_id": 499,
-          "answer": 2
+          "answer": 0
+        },
+        {
+          "question_id": 500,
+          "answer": 0
+        },
+        {
+          "question_id": 501,
+          "answer": 0
+        },
+        {
+          "question_id": 502,
+          "answer": 0
         },
         {
           "question_id": 90,
@@ -106,12 +154,24 @@
       "id": 670,
       "answers": [
         {
-          "question_id": 4,
-          "answer": "Kermoot"
-        },
-        {
           "question_id": 499,
           "answer": 7
+        },
+        {
+          "question_id": 500,
+          "answer": 7
+        },
+        {
+          "question_id": 501,
+          "answer": 7
+        },
+        {
+          "question_id": 502,
+          "answer": 7
+        },
+        {
+          "question_id": 4,
+          "answer": "Kermoot"
         },
         {
           "question_id": 90,
