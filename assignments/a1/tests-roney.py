@@ -1,8 +1,10 @@
 from survey import MultipleChoiceQuestion, NumericQuestion, YesNoQuestion, \
     CheckboxQuestion, Answer
 from course import Student, Course, sort_students
+from criterion import LonelyMemberCriterion, HomogeneousCriterion, HeterogeneousCriterion
 import random
 import string
+import pytest
 
 
 def test_student() -> None:
@@ -111,7 +113,31 @@ def test_course() -> None:
     assert tuple(sort_students(students, "id")) == course_1.get_students()
 
 
-if __name__ == '__main__':
-    import pytest
+def test_criterion() -> None:
+    ho_crit = HomogeneousCriterion()
+    he_crit = HeterogeneousCriterion()
+    lo_crit = LonelyMemberCriterion()
 
+    ynq = YesNoQuestion(1, "Is earth round")
+    ynq_1_answers = [Answer(True), Answer(True), Answer(True), Answer(True)]
+    ynq_2_answers = [Answer(True), Answer(False), Answer(True), Answer(False)]
+    ynq_3_answers = [Answer(True)]
+    ynq_4_answers = [Answer(True), Answer(False)]
+
+    assert ho_crit.score_answers(ynq, ynq_1_answers) == 1
+    assert ho_crit.score_answers(ynq, ynq_2_answers) == 1/3
+    assert ho_crit.score_answers(ynq, ynq_3_answers) == 1
+    assert ho_crit.score_answers(ynq, ynq_4_answers) == 0
+
+    assert he_crit.score_answers(ynq, ynq_1_answers) == 0.0
+    assert he_crit.score_answers(ynq, ynq_2_answers) == pytest.approx(2/3, rel=1e-3)
+    assert he_crit.score_answers(ynq, ynq_3_answers) == 0.0
+    assert he_crit.score_answers(ynq, ynq_4_answers) == 1
+
+    assert lo_crit.score_answers(ynq, ynq_1_answers) == 1
+    assert lo_crit.score_answers(ynq, ynq_2_answers) == 0.0
+    assert lo_crit.score_answers(ynq, ynq_3_answers) == 1
+    assert lo_crit.score_answers(ynq, ynq_4_answers) == 0
+
+if __name__ == '__main__':
     pytest.main(['tests-roney.py'])
