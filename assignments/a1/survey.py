@@ -299,7 +299,6 @@ class CheckboxQuestion(MultipleChoiceQuestion):
 
     id: int
     text: str
-    options: list
 
     # def __init__(self, id_: int, text: str, options: List[str]) -> None:
     #     """
