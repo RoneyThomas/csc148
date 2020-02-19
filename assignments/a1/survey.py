@@ -75,6 +75,8 @@ class Question:
         === Precondition ===
         <answer1> and <answer2> are both valid answers to this question
         """
+        if isinstance(self, Question):
+            pass
         if answer1.content == answer2.content:
             return 1.0
         return 0.0

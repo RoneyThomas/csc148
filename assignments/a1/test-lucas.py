@@ -436,4 +436,4 @@ class TestCheckboxQuestion:
 
 
 if __name__ == '__main__':
-    pytest.main(['example_tests.py'])
+    pytest.main(['test-lucas.py'])

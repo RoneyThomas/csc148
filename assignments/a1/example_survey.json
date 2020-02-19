@@ -40,6 +40,49 @@
     },
     {
       "question": {
+        "class": "NumericQuestion",
+        "args": [
+          500,
+          ":) many moons do you wish the earth had?",
+          0,
+          10
+        ]
+      },
+      "criterion": {
+        "class": "HeterogeneousCriterion"
+      }
+    },
+    {
+      "question": {
+        "class": "NumericQuestion",
+        "args": [
+          501,
+          "many moons do you wish the earth had?",
+          0,
+          10
+        ]
+      },
+
+      "criterion": {
+        "class": "HeterogeneousCriterion"
+      }
+    },
+    {
+      "question": {
+        "class": "NumericQuestion",
+        "args": [
+          502,
+          "What many moons do you wish the earth had?",
+          0,
+          10
+        ]
+      },
+      "criterion": {
+        "class": "HeterogeneousCriterion"
+      }
+    },
+    {
+      "question": {
         "class": "YesNoQuestion",
         "args": [
           90,
