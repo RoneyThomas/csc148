@@ -67,10 +67,9 @@ class Student:
     def __init__(self, id_: int, name: str) -> None:
         """ Initialize a student with name <name> and id <id>"""
         # TODO: complete the body of this method
-        if name != '':
-            self.id = id_
-            self.name = name
-            self._responses = {}
+        self.id = id_
+        self.name = name
+        self._responses = {}
 
     def __str__(self) -> str:
         """ Return the name of this student """

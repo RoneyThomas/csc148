@@ -49,9 +49,8 @@ class Question:
     def __init__(self, id_: int, text: str) -> None:
         """ Initialize a question with the text <text> """
         # TODO: complete the body of this method
-        if text != "":
-            self.id = id_
-            self.text = text
+        self.id = id_
+        self.text = text
 
     def __str__(self) -> str:
         """
