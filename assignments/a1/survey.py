@@ -299,27 +299,6 @@ class CheckboxQuestion(MultipleChoiceQuestion):
     id: int
     text: str
 
-    # def __init__(self, id_: int, text: str, options: List[str]) -> None:
-    #     """
-    #     Initialize a question with the text <text> and id <id> and
-    #     possible answers <options>.
-    #
-    #     === Precondition ===
-    #     No two elements in <options> are the same string
-    #     <options> contains at least two elements
-    #     """
-    #     # TODO: complete the body of this method
-    #     super().__init__(id_, text, options)
-
-    # def __str__(self) -> str:
-    #     """
-    #     Return a string representation of this question including the
-    #     text of the question and a description of the possible answers.
-    #
-    #     You can choose the precise format of this string.
-    #     """
-    #     # TODO: complete the body of this method
-
     def validate_answer(self, answer: Answer) -> bool:
         """
         Return True iff <answer> is a valid answer to this question.
