@@ -70,6 +70,27 @@ def test_questions() -> None:
     assert nq_1.get_similarity(nq_2_ans, nq_3_ans) == 0.75
 
     ynq = YesNoQuestion(1, "Is earth round")
+    ynq_1 = Answer(True)
+    ynq_2 = Answer(False)
+    ynq_3 = Answer(False)
+    assert ynq_1.is_valid(ynq)
+    assert ynq_2.is_valid(ynq)
+    assert not ynq.get_similarity(ynq_1, ynq_2)
+    assert ynq.get_similarity(ynq_2, ynq_3)
+
+    cbq = CheckboxQuestion(1, "Cities in Canada",
+                           ["Toronto", "Ottawa", "Vancouver"])
+    cbq_1 = Answer(["Toronto", "Ottawa"])
+    cbq_2 = Answer(["Seoul", "Busan"])
+    cbq_3 = Answer(["Toronto", "Ottawa"])
+    cbq_4 = Answer(["Toronto", "Vancouver"])
+    assert cbq.validate_answer(cbq_1)
+    assert not cbq.validate_answer(cbq_2)
+    assert cbq_1.is_valid(cbq)
+    assert not cbq_2.is_valid(cbq)
+    assert cbq.get_similarity(cbq_1, cbq_3) == 1
+    assert cbq.get_similarity(cbq_1, cbq_4) == 1/3
+    assert cbq.get_similarity(cbq_1, cbq_2) == 0.0
 
 
 def test_course() -> None:
