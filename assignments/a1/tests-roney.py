@@ -1,7 +1,10 @@
 from survey import MultipleChoiceQuestion, NumericQuestion, YesNoQuestion, \
     CheckboxQuestion, Answer
 from course import Student, Course, sort_students
-from criterion import LonelyMemberCriterion, HomogeneousCriterion, HeterogeneousCriterion
+from criterion import LonelyMemberCriterion, HomogeneousCriterion, \
+    HeterogeneousCriterion
+from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, RandomGrouper
+from survey import Survey
 import random
 import string
 import pytest
@@ -91,7 +94,7 @@ def test_questions() -> None:
     assert cbq_1.is_valid(cbq)
     assert not cbq_2.is_valid(cbq)
     assert cbq.get_similarity(cbq_1, cbq_3) == 1
-    assert cbq.get_similarity(cbq_1, cbq_4) == 1/3
+    assert cbq.get_similarity(cbq_1, cbq_4) == 1 / 3
     assert cbq.get_similarity(cbq_1, cbq_2) == 0.0
 
 
@@ -125,12 +128,13 @@ def test_criterion() -> None:
     ynq_4_answers = [Answer(True), Answer(False)]
 
     assert ho_crit.score_answers(ynq, ynq_1_answers) == 1
-    assert ho_crit.score_answers(ynq, ynq_2_answers) == 1/3
+    assert ho_crit.score_answers(ynq, ynq_2_answers) == 1 / 3
     assert ho_crit.score_answers(ynq, ynq_3_answers) == 1
     assert ho_crit.score_answers(ynq, ynq_4_answers) == 0
 
     assert he_crit.score_answers(ynq, ynq_1_answers) == 0.0
-    assert he_crit.score_answers(ynq, ynq_2_answers) == pytest.approx(2/3, rel=1e-3)
+    assert he_crit.score_answers(ynq, ynq_2_answers) == pytest.approx(2 / 3,
+                                                                      rel=1e-3)
     assert he_crit.score_answers(ynq, ynq_3_answers) == 0.0
     assert he_crit.score_answers(ynq, ynq_4_answers) == 1
 
@@ -138,6 +142,57 @@ def test_criterion() -> None:
     assert lo_crit.score_answers(ynq, ynq_2_answers) == 0.0
     assert lo_crit.score_answers(ynq, ynq_3_answers) == 1
     assert lo_crit.score_answers(ynq, ynq_4_answers) == 0
+
+
+def test_grouper() -> None:
+    assert windows([3, 4, 6, 2, 3], 2) == [[3, 4], [4, 6], [6, 2], [2, 3]]
+    assert windows(['a', 1, 6.0, False], 3) == [['a', 1, 6.0], [1, 6.0, False]]
+    assert slice_list([3, 4, 6, 2, 3], 2) == [[3, 4], [6, 2], [3]]
+    assert slice_list(['a', 1, 6.0, False], 3) == [['a', 1, 6.0], [False]]
+
+    g = Group([Student(1, "roney"), Student(2, "tim"), Student(3, "allen")])
+    g_1 = Group([Student(1, "roney"), Student(2, "tim"), Student(3, "allen")])
+    g_2 = Group([Student(5, "roney"), Student(6, "tim"), Student(7, "allen")])
+    assert len(g) == 3
+    assert Student(1, "roney") in g
+    assert "roney" in str(g)
+    gr = Grouping()
+    assert gr.add_group(g)
+    assert not gr.add_group(g_1)
+    assert gr.add_group(g_2)
+    assert len(gr) == 2
+
+    course_0 = Course("Snake")
+    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    s = Survey([YesNoQuestion(1, "Is earth round")])
+    ag = AlphaGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+
+    course_0 = Course("Snake")
+    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    s = Survey([YesNoQuestion(1, "Is earth round")])
+    ag = AlphaGrouper(3)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 1
+
+    course_0 = Course("Snake")
+    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    s = Survey([YesNoQuestion(1, "Is earth round")])
+    ag = RandomGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+
+    course_0 = Course("Snake")
+    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    s = Survey([YesNoQuestion(1, "Is earth round")])
+    ag = RandomGrouper(3)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 1
+
+
+
+
 
 if __name__ == '__main__':
     pytest.main(['tests-roney.py'])

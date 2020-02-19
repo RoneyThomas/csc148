@@ -349,8 +349,7 @@ class Group:
         You can choose the precise format of this string.
         """
         # TODO: complete the body of this method
-        response = ' '.join(f'{s.name}' for s in self._members)
-        return response
+        return ' '.join(f'{s.name}' for s in self._members)
 
     def get_members(self) -> List[Student]:
         """ Return a list of members in this group. This list should be a
