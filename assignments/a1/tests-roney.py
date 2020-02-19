@@ -1,4 +1,5 @@
-from survey import MultipleChoiceQuestion, Answer
+from survey import MultipleChoiceQuestion, NumericQuestion, YesNoQuestion, \
+    CheckboxQuestion, Answer
 from course import Student, Course, sort_students
 import random
 import string
@@ -46,6 +47,29 @@ def test_questions() -> None:
     assert not mcq_1.validate_answer(mcq_3_ans)
     assert mcq_1.get_similarity(mcq_1_ans, mcq_1_c_ans) == 1.0
     assert mcq_1.get_similarity(mcq_1_ans, mcq_2_ans) == 0.0
+
+    nq_1 = NumericQuestion(1, "A n.o between 1 and 5", 1, 5)
+    nq_1_ans = Answer(1)
+    nq_2_ans = Answer(2)
+    nq_3_ans = Answer(3)
+    nq_4_ans = Answer(5)
+    nq_5_ans = Answer(10)
+    nq_6_ans = Answer(1)
+    assert nq_1.validate_answer(nq_1_ans)
+    assert nq_1.validate_answer(nq_2_ans)
+    assert nq_1.validate_answer(nq_3_ans)
+    assert nq_1.validate_answer(nq_4_ans)
+    assert not nq_1.validate_answer(nq_5_ans)
+    assert nq_1_ans.is_valid(nq_1)
+    assert nq_2_ans.is_valid(nq_1)
+    assert nq_3_ans.is_valid(nq_1)
+    assert nq_4_ans.is_valid(nq_1)
+    assert not nq_5_ans.is_valid(nq_1)
+    assert nq_1.get_similarity(nq_1_ans, nq_6_ans) == 1.0
+    assert nq_1.get_similarity(nq_1_ans, nq_4_ans) == 0.0
+    assert nq_1.get_similarity(nq_2_ans, nq_3_ans) == 0.75
+
+    ynq = YesNoQuestion(1, "Is earth round")
 
 
 def test_course() -> None:
