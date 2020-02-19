@@ -48,9 +48,9 @@ class Question:
 
     def __init__(self, id_: int, text: str) -> None:
         """ Initialize a question with the text <text> """
-        # TODO: complete the body of this method
-        self.id = id_
-        self.text = text
+        if text != '':
+            self.id = id_
+            self.text = text
 
     def __str__(self) -> str:
         """
@@ -81,7 +81,6 @@ class Question:
 
 
 class MultipleChoiceQuestion(Question):
-    # TODO: make this a child class of another class defined in this file
     """ A question whose answers can be one of several options
 
     === Public Attributes ===
@@ -116,7 +115,7 @@ class MultipleChoiceQuestion(Question):
 
         You can choose the precise format of this string.
         """
-        # TODO: complete the body of this method
+
         return f'{self.text} \n {self._options}'
 
     def validate_answer(self, answer: Answer) -> bool:
@@ -126,14 +125,10 @@ class MultipleChoiceQuestion(Question):
         An answer is valid if its content is one of the possible answers to this
         question.
         """
-        # TODO: complete the body of this method
-        # if not isinstance(answer.content, str):
-        #     return False
         return answer.content in self._options
 
 
 class NumericQuestion(Question):
-    # TODO: make this a child class of another class defined in this file
     """ A question whose answer can be an integer between some
     minimum and maximum value (inclusive).
 
