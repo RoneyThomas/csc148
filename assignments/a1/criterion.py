@@ -101,7 +101,7 @@ class HomogeneousCriterion(Criterion):
         return sum(score) / len(score)
 
 
-class HeterogeneousCriterion(Criterion):
+class HeterogeneousCriterion(HomogeneousCriterion):
     # TODO: make this a child class of another class defined in this file
     """ A criterion used to evaluate the quality of a group based on the group
     members' answers for a given question.
@@ -130,16 +130,11 @@ class HeterogeneousCriterion(Criterion):
         # TODO: complete the body of this method
         if len(answers) == 1 and answers[0].is_valid(question):
             return 0.0
-        for a in answers:
-            if not a.is_valid(question):
-                raise InvalidAnswerError
-        score = []
-        for a in list(self._combinations(answers)):
-            score.append(question.get_similarity(a[0], a[1]))
-        return 1 - (sum(score) / len(score))
+        else:
+            return 1 - super().score_answers(question, answers)
 
 
-class LonelyMemberCriterion(Criterion):
+class LonelyMemberCriterion(HomogeneousCriterion):
     # TODO: make this a child class of another class defined in this file
     """ A criterion used to measure the quality of a group of students
     according to the group members' answers to a question. This criterion
@@ -165,16 +160,18 @@ class LonelyMemberCriterion(Criterion):
         len(answers) > 0
         """
         # TODO: complete the body of this method
-        # Do we need to handle a case where we only have one answer
-        if len(answers) == 1 and answers[0].is_valid(question):
+        # if len(answers) == 1 and answers[0].is_valid(question):
+        #     return 1.0
+        # for a in answers:
+        #     if not a.is_valid(question):
+        #         raise InvalidAnswerError
+        # for a in list(self._combinations(answers)):
+        #     if a[0].content != a[1].content:
+        #         return 0.0
+        # return 1.0
+        if super().score_answers(question, answers) == 1.0:
             return 1.0
-        for a in answers:
-            if not a.is_valid(question):
-                raise InvalidAnswerError
-        for a in list(self._combinations(answers)):
-            if a[0].content != a[1].content:
-                return 0.0
-        return 1.0
+        return 0.0
 
 
 if __name__ == '__main__':
