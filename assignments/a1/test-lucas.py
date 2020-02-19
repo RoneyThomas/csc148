@@ -188,4 +188,4 @@ def test_criterion() -> None:
 if __name__ == '__main__':
     import pytest
 
-    pytest.main(['tests-roney.py'])
+    pytest.main(['test-lucas.py'])
