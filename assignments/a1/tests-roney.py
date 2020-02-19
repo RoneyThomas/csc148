@@ -3,7 +3,8 @@ from survey import MultipleChoiceQuestion, NumericQuestion, YesNoQuestion, \
 from course import Student, Course, sort_students
 from criterion import LonelyMemberCriterion, HomogeneousCriterion, \
     HeterogeneousCriterion
-from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, RandomGrouper, GreedyGrouper
+from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, \
+    RandomGrouper, GreedyGrouper
 from survey import Survey
 import random
 import string
@@ -163,28 +164,32 @@ def test_grouper() -> None:
     assert len(gr) == 2
 
     course_0 = Course("Snake")
-    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    course_0.enroll_students(
+        [Student(1, "a"), Student(2, "b"), Student(3, "c")])
     s = Survey([YesNoQuestion(1, "Is earth round")])
     ag = AlphaGrouper(2)
     gr = ag.make_grouping(course_0, s)
     assert len(gr) == 2
 
     course_0 = Course("Snake")
-    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    course_0.enroll_students(
+        [Student(1, "a"), Student(2, "b"), Student(3, "c")])
     s = Survey([YesNoQuestion(1, "Is earth round")])
     ag = AlphaGrouper(3)
     gr = ag.make_grouping(course_0, s)
     assert len(gr) == 1
 
     course_0 = Course("Snake")
-    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    course_0.enroll_students(
+        [Student(1, "a"), Student(2, "b"), Student(3, "c")])
     s = Survey([YesNoQuestion(1, "Is earth round")])
     ag = RandomGrouper(2)
     gr = ag.make_grouping(course_0, s)
     assert len(gr) == 2
 
     course_0 = Course("Snake")
-    course_0.enroll_students([Student(1, "a"), Student(2, "b"), Student(3, "c")])
+    course_0.enroll_students(
+        [Student(1, "a"), Student(2, "b"), Student(3, "c")])
     s = Survey([YesNoQuestion(1, "Is earth round")])
     ag = RandomGrouper(3)
     gr = ag.make_grouping(course_0, s)
@@ -237,8 +242,6 @@ def test_grouper() -> None:
     groups = gr.get_groups()
     assert groups[0]._member_id == [1, 3]
     assert groups[1]._member_id == [2]
-
-
 
 
 if __name__ == '__main__':
