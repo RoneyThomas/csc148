@@ -23,6 +23,7 @@ def test_student() -> None:
     assert not student_1.has_answer(mcq_2)
     assert student_1.get_answer(mcq_1) == mcq_1_ans
     assert student_1.get_answer(mcq_2) == None
+    assert student_2.get_answer(mcq_1) == None
 
 
 def test_questions() -> None:
@@ -51,8 +52,10 @@ def test_course() -> None:
     course_0 = Course("Snake")
     course_0.enroll_students([Student(0, "Tim")])
     course_0.enroll_students([Student(0, "Tim")])
-    course_0.enroll_students([Student(0, "Tim"), Student(0, "Tim")])
+    course_0.enroll_students([Student(0, "Tim"), Student(0, "Roney")])
     assert len(course_0.get_students()) == 1
+    course_0.enroll_students([Student(1, "Tim"), Student(2, "Roney")])
+    assert len(course_0.get_students()) == 3
     course_1 = Course("Python")
     students = []
     for x in range(10):
