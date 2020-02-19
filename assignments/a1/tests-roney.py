@@ -3,7 +3,7 @@ from survey import MultipleChoiceQuestion, NumericQuestion, YesNoQuestion, \
 from course import Student, Course, sort_students
 from criterion import LonelyMemberCriterion, HomogeneousCriterion, \
     HeterogeneousCriterion
-from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, RandomGrouper
+from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, RandomGrouper, GreedyGrouper
 from survey import Survey
 import random
 import string
@@ -190,6 +190,53 @@ def test_grouper() -> None:
     gr = ag.make_grouping(course_0, s)
     assert len(gr) == 1
 
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(True))
+    course_0.enroll_students([s1, s2, s3])
+    s = Survey([q])
+    ag = GreedyGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(True))
+    course_0.enroll_students([s1, s2, s3])
+    s = Survey([q])
+    ag = GreedyGrouper(3)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 1
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [1, 3, 2]
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(True))
+    course_0.enroll_students([s1, s2, s3])
+    s = Survey([q])
+    s.set_criterion(LonelyMemberCriterion(), q)
+    ag = GreedyGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [1, 3]
+    assert groups[1]._member_id == [2]
 
 
 

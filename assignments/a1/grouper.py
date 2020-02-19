@@ -218,15 +218,15 @@ class GreedyGrouper(Grouper):
         while students:
             if len(members) == 0:
                 members.append(students.pop(0))
+            if len(students) == 0:
+                grouper.add_group(Group(members[:]))
+                break
             if len(members) < self.group_size:
                 score = []
                 for student in students:
                     score.append(survey.score_students(members + [student]))
                 members.append(students.pop(score.index(max(score))))
             if len(members) == self.group_size:
-                grouper.add_group(Group(members[:]))
-                members *= 0
-            elif len(students) == 0 & len(members) > 0:
                 grouper.add_group(Group(members[:]))
                 members *= 0
         return grouper
