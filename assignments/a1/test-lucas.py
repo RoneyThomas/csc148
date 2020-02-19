@@ -1,191 +1,439 @@
-import random
-import string
+"""CSC148 Assignment 1
 
-from course import Course, Student, sort_students
-from survey import Answer, MultipleChoiceQuestion, NumericQuestion
-from survey import CheckboxQuestion, YesNoQuestion, Survey
-from criterion import  HomogeneousCriterion, HeterogeneousCriterion
-from criterion  import LonelyMemberCriterion
+=== CSC148 Winter 2020 ===
+Department of Computer Science,
+University of Toronto
+
+This code is provided solely for the personal and private use of
+students taking the CSC148 course at the University of Toronto.
+Copying for purposes other than this use is expressly prohibited.
+All forms of distribution of this code, whether as given or with
+any changes, are expressly prohibited.
+
+Authors: Misha Schwartz, Mario Badr, Christine Murad, Diane Horton, Sophia Huynh
+and Jaisie Sin
+
+All of the files in this directory and all subdirectories are:
+Copyright (c) 2020 Misha Schwartz, Mario Badr, Christine Murad, Diane Horton,
+Sophia Huynh and Jaisie Sin
+"""
+import course
+import survey
+import criterion
+import grouper
 import pytest
-
-def test_student() -> None:
-    student_1 = Student(1, "roney")
-    student_2 = Student(2, "tim")
-    student_3 = Student(3, "allen")
-    assert str(student_1) == "roney"
-    assert str(student_2) == "tim"
-    assert str(student_3) != "roney"
-    assert student_1.id == 1
-    assert student_2.id == 2
-    assert student_3.id == 3
-    mcq_1 = MultipleChoiceQuestion(1, "Cities in Canada",
-                                   ["Toronto", "Ottawa", "Vancouver"])
-    mcq_2 = MultipleChoiceQuestion(2, "C", ["A", "O", "V"])
-    mcq_1_ans = Answer("Toronto")
-    student_1.set_answer(mcq_1, mcq_1_ans)
-    assert student_1.has_answer(mcq_1)
-    assert not student_1.has_answer(mcq_2)
-    assert student_1.get_answer(mcq_1) == mcq_1_ans
-    assert student_1.get_answer(mcq_2) == None
+from typing import List, Set, FrozenSet
 
 
-def test_questions() -> None:
-    mcq_1 = MultipleChoiceQuestion(1, "Cities in Canada",
-                                   ["Toronto", "Ottawa", "Vancouver"])
-    assert mcq_1.id == 1
-    assert mcq_1.text == "Cities in Canada"
-    assert "Cities in Canada" in str(mcq_1)
-    assert "Toronto" in str(mcq_1)
-    assert "Ottawa" in str(mcq_1)
-    assert "Montreal" not in str(mcq_1)
-    mcq_1_ans = Answer("Toronto")
-    mcq_1_c_ans = Answer("Toronto")
-    mcq_2_ans = Answer("Montreal")
-    mcq_3_ans = Answer("")
-    assert mcq_1_ans.is_valid(mcq_1)
-    assert not mcq_2_ans.is_valid(mcq_1)
-    assert mcq_1.validate_answer(mcq_1_ans)
-    assert not mcq_1.validate_answer(mcq_2_ans)
-    assert not mcq_1.validate_answer(mcq_3_ans)
-    assert mcq_1.get_similarity(mcq_1_ans, mcq_1_c_ans) == 1.0
-    assert mcq_1.get_similarity(mcq_1_ans, mcq_2_ans) == 0.0
+@pytest.fixture
+def empty_course() -> course.Course:
+    return course.Course('csc148')
 
 
-def test_course() -> None:
-    course_0 = Course("Snake")
-    course_0.enroll_students([Student(0, "Tim")])
-    course_0.enroll_students([Student(0, "Tim")])
-    course_0.enroll_students([Student(0, "Tim"), Student(0, "Tim")])
-    assert len(course_0.get_students()) == 1
-    course_1 = Course("Python")
-    students = []
-    for x in range(10):
-        students.append(Student(x, ''.join(
-            random.choices(string.ascii_uppercase + string.digits, k=6))))
-    course_1.enroll_students(students)
-    assert len(course_1.get_students()) == len(students)
-    assert tuple(sort_students(students, "id")) == course_1.get_students()
+@pytest.fixture
+def students() -> List[course.Student]:
+    return [course.Student(1, 'Zoro'),
+            course.Student(2, 'Aaron'),
+            course.Student(3, 'Gertrude'),
+            course.Student(4, 'Yvette')]
 
 
-def test_answers_survey() -> None:
-    student_1 = Student(1, "roney")
-    student_2 = Student(2, "tim")
-    student_3 = Student(3, "allen")
-    student_4 = Student(3, "allen")
-    assert str(student_1) == "roney"
-    assert str(student_2) == "tim"
-    assert str(student_3) != "roney"
-    assert student_1.id == 1
-    assert student_2.id == 2
-    assert student_3.id == 3
-    mcq_1 = MultipleChoiceQuestion(1, "Cities in Canada",
-                                   ["Toronto", "Ottawa", "Vancouver"])
-    mcq_2 = MultipleChoiceQuestion(2, "C", ["A", "O", "V"])
-    mcq_1_ans = Answer("Toronto")
-    student_1.set_answer(mcq_1, mcq_1_ans)
-    student_2.set_answer(mcq_1, mcq_1_ans)
-    student_3.set_answer(mcq_1, mcq_1_ans)
-    lst = [student_1, student_2, student_3, student_4]
-    course_0 = Course("Snake")
-    assert len(course_0.get_students()) == 0
-    course_0.enroll_students(lst)
-    lst1 = [student_1, student_2, student_3]
-    course_0.enroll_students(lst1)
-    assert len(course_0.get_students()) == 3
-    for student in course_0.get_students():
-        assert student.has_answer(mcq_1)
-
-    survey_ = Survey([mcq_1])
-    assert len(survey_) == 1
-    assert course_0.all_answered(survey_)
-
-    student_5 = Student(55, "allen")
-    course_0.enroll_students([student_5])
-    assert not course_0.all_answered(survey_)
-
-    course_0 = Course("Snake")
-    student_1 = Student(1, "roney")
-    student_2 = Student(2, "tim")
-    student_3 = Student(3, "allen")
-    student_4 = Student(4, "Sarah")
+@pytest.fixture
+def alpha_grouping(students_with_answers) -> grouper.Grouping:
+    grouping = grouper.Grouping()
+    grouping.add_group(grouper.Group([students_with_answers[0],
+                                      students_with_answers[3]]))
+    grouping.add_group(grouper.Group([students_with_answers[1],
+                                      students_with_answers[2]]))
+    return grouping
 
 
-    q_1 = MultipleChoiceQuestion(1, "Cities in Canada",
-                                 ["Toronto", "Ottawa", "Vancouver"])
-
-    q_2 = NumericQuestion(2, "numbers of days in a week", 1, 7)
-
-    q_3 = YesNoQuestion(3, "Are you Happy")
-
-    q_4 = CheckboxQuestion(4, "Q4", ['a', 'b', 'c'])
-
-    q_5 = MultipleChoiceQuestion(5, "C", ["A", "O", "V"])
-
-    q_1_ans = Answer("Toronto")
-    q_2_ans = Answer(4)
-    q_3_ans = Answer(True)
-    q_4_ans = Answer(['a', 'b'])
-    q_5_ans = Answer('A')
-
-    survey_ = Survey([q_1, q_2, q_3, q_4, q_5])
-    questions = survey_.get_questions()
-
-    lst = [student_1, student_2, student_3, student_4]
-
-    a_lst = [q_1_ans, q_2_ans, q_3_ans, q_4_ans, q_5_ans]
-
-    for students in lst:
-        for i, a in enumerate(a_lst):
-            students.set_answer(questions[i], a)
-    course_0.enroll_students(lst)
-
-    assert course_0.all_answered(survey_)
-
-    for question in survey_.get_questions():
-        assert survey_._get_weight(question) == 1
-        survey_.set_weight(2, question)
-        assert survey_._get_weight(question) == 2
-        assert question in survey_
-        assert type(survey_._get_criterion(question)) == HomogeneousCriterion
-
-    survey_.set_weight(3, survey_.get_questions()[3])
-
-    assert survey_.score_students(lst) == 2.2
-
-    survey1 = Survey([])
-    assert survey1.score_students(lst) == 0
+@pytest.fixture
+def greedy_grouping(students_with_answers) -> grouper.Grouping:
+    grouping = grouper.Grouping()
+    grouping.add_group(grouper.Group([students_with_answers[1],
+                                      students_with_answers[3]]))
+    grouping.add_group(grouper.Group([students_with_answers[0],
+                                      students_with_answers[2]]))
+    return grouping
 
 
-def test_criterion() -> None:
-    q = CheckboxQuestion(4, "Q4", ['a', 'b', 'c'])
-    a1 = Answer(['a'])
-    a2 = Answer(['b'])
-    a3 = Answer(['c'])
-    a123 = Answer(['csadf'])
-
-    assert a1.is_valid(q)
-
-    a_list = [a1, a1, a1, a1, a1, a1, a1, a1, a2, a2, a2, a2, a2, a3, a3]
-    a2_list = [a3, a3]
-    a3_list = [a3, a3, a123]
-    a4_list = [a3, a3, a1, a2]
-    a5_list = [a3]
-
-    ho = HomogeneousCriterion()
-    he = HeterogeneousCriterion()
-    lo = LonelyMemberCriterion()
-
-    assert lo.score_answers(q, a_list) == 0.0
-    assert lo.score_answers(q, a2_list) == 1.0
-    assert he.score_answers(q, a4_list) == 0.8333333333333334
-    assert he.score_answers(q, a5_list) == 0.0
-    assert he.score_answers(q, a5_list) == 0.0
-    assert ho.score_answers(q, a_list) == 0.37142857142857144
+@pytest.fixture
+def window_grouping(students_with_answers) -> grouper.Grouping:
+    grouping = grouper.Grouping()
+    grouping.add_group(grouper.Group([students_with_answers[0],
+                                      students_with_answers[1]]))
+    grouping.add_group(grouper.Group([students_with_answers[2],
+                                      students_with_answers[3]]))
+    return grouping
 
 
+@pytest.fixture
+def questions() -> List[survey.Question]:
+    return [survey.MultipleChoiceQuestion(1, 'why?', ['a', 'b']),
+            survey.NumericQuestion(2, 'what?', -2, 4),
+            survey.YesNoQuestion(3, 'really?'),
+            survey.CheckboxQuestion(4, 'how?', ['a', 'b', 'c'])]
+
+
+@pytest.fixture
+def criteria(answers) -> List[criterion.Criterion]:
+    return [criterion.HomogeneousCriterion(),
+            criterion.HeterogeneousCriterion(),
+            criterion.LonelyMemberCriterion()]
+
+
+@pytest.fixture()
+def weights() -> List[int]:
+    return [2, 5, 7]
+
+
+@pytest.fixture
+def answers() -> List[List[survey.Answer]]:
+    return [[survey.Answer('a'), survey.Answer('b'),
+             survey.Answer('a'), survey.Answer('b')],
+            [survey.Answer(0), survey.Answer(4),
+             survey.Answer(-1), survey.Answer(1)],
+            [survey.Answer(True), survey.Answer(False),
+             survey.Answer(True), survey.Answer(True)],
+            [survey.Answer(['a', 'b']), survey.Answer(['a', 'b']),
+             survey.Answer(['a']), survey.Answer(['b'])]]
+
+
+@pytest.fixture
+def students_with_answers(students, questions, answers) -> List[course.Student]:
+    for i, student in enumerate(students):
+        for j, question in enumerate(questions):
+            student.set_answer(question, answers[j][i])
+    return students
+
+
+@pytest.fixture
+def course_with_students(empty_course, students) -> course.Course:
+    empty_course.enroll_students(students)
+    return empty_course
+
+
+@pytest.fixture
+def course_with_students_with_answers(empty_course,
+                                      students_with_answers) -> course.Course:
+    empty_course.enroll_students(students_with_answers)
+    return empty_course
+
+
+@pytest.fixture
+def survey_(questions, criteria, weights) -> survey.Survey:
+    s = survey.Survey(questions)
+    for i, question in enumerate(questions):
+        if i:
+            s.set_weight(weights[i-1], question)
+        if len(questions)-1 != i:
+            s.set_criterion(criteria[i], question)
+    return s
+
+
+@pytest.fixture
+def group(students) -> grouper.Group:
+    return grouper.Group(students)
+
+
+def get_member_ids(grouping: grouper.Grouping) -> Set[FrozenSet[int]]:
+    member_ids = set()
+    for group in grouping.get_groups():
+        ids = []
+        for member in group.get_members():
+            ids.append(member.id)
+        member_ids.add(frozenset(ids))
+    return member_ids
+
+
+def compare_groupings(grouping1: grouper.Grouping,
+                      grouping2: grouper.Grouping) -> None:
+    assert get_member_ids(grouping1) == get_member_ids(grouping2)
+
+
+class TestCourse:
+    def test_enroll_students(self, empty_course, students) -> None:
+        empty_course.enroll_students(students)
+        for student in students:
+            assert student in empty_course.students
+
+    def test_all_answered(self, course_with_students_with_answers,
+                          survey_) -> None:
+        assert course_with_students_with_answers.all_answered(survey_)
+
+    def test_get_students(self, course_with_students) -> None:
+        students = course_with_students.get_students()
+        for student in students:
+            assert student in course_with_students.students
+
+
+class TestStudent:
+    def test___str__(self, students) -> None:
+        student = students[0]
+        assert student.name == str(student)
+
+    def test_has_answer(self, students_with_answers, questions) -> None:
+        for student in students_with_answers:
+            for question in questions:
+                assert student.has_answer(question)
+
+    def test_set_answer(self, students, questions, answers) -> None:
+        for i, student in enumerate(students):
+            for j, question in enumerate(questions):
+                answer = answers[j][i]
+                student.set_answer(question, answer)
+                assert student.get_answer(question) == answer
+
+    def test_get_answer(self, students_with_answers,
+                        questions, answers) -> None:
+        for i, student in enumerate(students_with_answers):
+            for j, question in enumerate(questions):
+                assert student.get_answer(question) == answers[j][i]
+
+
+class TestHomogeneousCriterion:
+    def test_score_answers(self, criteria, answers, questions) -> None:
+        hom_criterion = criteria[0]
+        score = hom_criterion.score_answers(questions[0], answers[0])
+        assert round(score, 2) == 0.33
+
+
+class TestHeterogeneousCriterion:
+    def test_score_answers(self, criteria, answers, questions) -> None:
+        het_criterion = criteria[1]
+        score = het_criterion.score_answers(questions[1], answers[1])
+        assert round(score, 2) == 0.44
+
+
+class TestLonelyMemberCriterion:
+    def test_score_answers(self, criteria, answers, questions) -> None:
+        lon_criterion = criteria[2]
+        assert lon_criterion.score_answers(questions[2], answers[2]) == 0.0
+
+
+def test_slice_list() -> None:
+    lst = list(range(7))
+    assert grouper.slice_list(lst, 3) == [[0, 1, 2], [3, 4, 5], [6]]
+
+
+def test_windows() -> None:
+    lst = list(range(5))
+    assert grouper.windows(lst, 3) == [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+
+
+class TestAlphaGrouper:
+    def test_make_grouping(self, course_with_students_with_answers,
+                           alpha_grouping,
+                           survey_) -> None:
+        grouper_ = grouper.AlphaGrouper(2)
+        grouping = grouper_.make_grouping(course_with_students_with_answers,
+                                          survey_)
+        compare_groupings(grouping, alpha_grouping)
+
+
+class TestRandomGrouper:
+    def test_make_grouping(self, course_with_students_with_answers,
+                           survey_) -> None:
+        grouper_ = grouper.RandomGrouper(2)
+        grouping = grouper_.make_grouping(course_with_students_with_answers,
+                                          survey_)
+        member_ids = get_member_ids(grouping)
+        assert len(member_ids) == 2
+        for ids in member_ids:
+            assert len(ids) == 2
+        assert len(frozenset.intersection(*member_ids)) == 0
+
+
+class TestGreedyGrouper:
+    def test_make_grouping(self, course_with_students_with_answers,
+                           greedy_grouping,
+                           survey_) -> None:
+        grouper_ = grouper.GreedyGrouper(2)
+        grouping = grouper_.make_grouping(course_with_students_with_answers,
+                                          survey_)
+        compare_groupings(grouping, greedy_grouping)
+
+
+class TestWindowGrouper:
+    def test_make_grouping(self, course_with_students_with_answers,
+                           window_grouping,
+                           survey_) -> None:
+        grouper_ = grouper.WindowGrouper(2)
+        grouping = grouper_.make_grouping(course_with_students_with_answers,
+                                          survey_)
+        compare_groupings(grouping, window_grouping)
+
+
+class TestGroup:
+    def test___len__(self, group) -> None:
+        assert len(group) == 4
+
+    def test___contains__(self, group, students) -> None:
+        for student in students:
+            assert student in group
+
+    def test___str__(self, group, students) -> None:
+        for student in students:
+            assert student.name in str(group)
+
+    def test_get_members(self, group) -> None:
+        ids = set()
+        for member in group.get_members():
+            ids.add(member.id)
+        assert ids == {1, 2, 3, 4}
+
+
+class TestGrouping:
+    def test___len__(self, greedy_grouping) -> None:
+        assert len(greedy_grouping) == 2
+
+    def test___str__(self, greedy_grouping) -> None:
+        lines = str(greedy_grouping).splitlines()
+        assert len(lines) == 2
+
+        in_lines = []
+        for group in greedy_grouping.get_groups():
+            in_line = []
+            for members in group.get_members():
+                name = members.name
+                assert name in str(greedy_grouping)
+                if name in lines[0]:
+                    in_line.append(0)
+                    assert name not in lines[1]
+                if name in lines[1]:
+                    in_line.append(1)
+                    assert name not in lines[0]
+            assert len(set(in_line)) == 1
+            assert in_line[0] not in in_lines
+            in_lines.append(in_line[0])
+
+    def test_add_group(self, group) -> None:
+        grouping = grouper.Grouping()
+        grouping.add_group(group)
+        assert group in grouping._groups
+
+    def test_get_groups(self, students) -> None:
+        group = grouper.Group(students[:2])
+        grouping = grouper.Grouping()
+        grouping.add_group(group)
+        assert get_member_ids(grouping) == {frozenset([1, 2])}
+
+
+class TestSurvey:
+    def test___len__(self, survey_) -> None:
+        assert len(survey_) == 4
+
+    def test___contains__(self, survey_, questions) -> None:
+        for question in questions:
+            assert question in survey_
+
+    def test___str__(self, survey_, questions) -> None:
+        for question in questions:
+            assert str(question) in str(survey_)
+
+    def test_get_questions(self, survey_, questions) -> None:
+        q_ids = set()
+        for question in questions:
+            q_ids.add(question.id)
+        for question in survey_.get_questions():
+            assert question.id in q_ids
+
+    def test__get_criterion(self, survey_, questions, criteria) -> None:
+        criteria.append(criterion.HomogeneousCriterion())
+        for i, question in enumerate(questions):
+            assert isinstance(survey_._get_criterion(question),
+                              type(criteria[i]))
+
+    def test__get_weight(self, survey_, questions, weights) -> None:
+        weights.insert(0, 1)
+        for i, question in enumerate(questions):
+            assert isinstance(survey_._get_weight(question), type(weights[i]))
+
+    def test_set_weight(self, survey_, questions) -> None:
+        survey_._weights = {}
+        survey_.set_weight(999, questions[0])
+        assert survey_._get_weight(questions[0]) == 999
+
+    def test_set_criterion(self, survey_, questions) -> None:
+        survey_._criteria = {}
+        criterion_ = criterion.HomogeneousCriterion()
+        survey_.set_criterion(criterion_, questions[0])
+        assert survey_._get_criterion(questions[0]) == criterion_
+
+    def test_score_students(self, survey_, students_with_answers) -> None:
+        score = survey_.score_students(students_with_answers)
+        assert round(score, 2) == 1.18
+
+    def test_score_grouping(self, survey_, greedy_grouping) -> None:
+        score = survey_.score_grouping(greedy_grouping)
+        assert round(score, 2) == 1.92
+
+
+class TestAnswer:
+    def test_is_valid(self, questions, answers) -> None:
+        for i, question in enumerate(questions):
+            assert answers[i][0].is_valid(question)
+
+
+class TestMultipleChoiceQuestion:
+    def test___str__(self, questions) -> None:
+        mc = questions[0]
+        assert 'why?' in str(mc)
+
+    def test_validate_answer(self, questions, answers) -> None:
+        mc = questions[0]
+        assert mc.validate_answer(answers[0][0])
+
+    def test_get_similarity(self, questions, answers) -> None:
+        mc = questions[0]
+        assert mc.get_similarity(*answers[0][:2]) == 0.0
+
+
+class TestNumericQuestion:
+    def test___str__(self, questions) -> None:
+        num = questions[1]
+        assert 'what?' in str(num)
+
+    def test_validate_answer(self, questions, answers) -> None:
+        num = questions[1]
+        assert num.validate_answer(answers[1][0])
+
+    def test_get_similarity(self, questions, answers) -> None:
+        num = questions[1]
+        similarity = num.get_similarity(*answers[1][:2])
+        assert round(similarity, 2) == 0.33
+
+
+class TestYesNoQuestion:
+    def test___str__(self, questions) -> None:
+        yn = questions[2]
+        assert 'really?' in str(yn)
+
+    def test_validate_answer(self, questions, answers) -> None:
+        yn = questions[2]
+        assert yn.validate_answer(answers[2][0])
+
+    def test_get_similarity(self, questions, answers) -> None:
+        yn = questions[2]
+        similarity = yn.get_similarity(*answers[2][:2])
+        assert round(similarity, 2) == 0.0
+
+
+class TestCheckboxQuestion:
+    def test___str__(self, questions) -> None:
+        check = questions[3]
+        assert 'how?' in str(check)
+
+    def test_validate_answer(self, questions, answers) -> None:
+        check = questions[3]
+        assert check.validate_answer(answers[3][0])
+
+    def test_get_similarity(self, questions, answers) -> None:
+        check = questions[3]
+        similarity = check.get_similarity(*answers[3][2:])
+        assert round(similarity, 2) == 0.0
 
 
 if __name__ == '__main__':
-    import pytest
-
-    pytest.main(['test-lucas.py'])
+    pytest.main(['example_tests.py'])
