@@ -285,7 +285,7 @@ class WindowGrouper(Grouper):
             end = index + self.group_size + 1
             # this means we are in the last window
             # in which case we need to compare it with the first window
-            if end >= len(students) - 1:
+            if end > len(students):
                 current_group = survey.score_students(students[index:end])
                 next_group = survey.score_students(
                     students[:self.group_size - 1])
@@ -304,7 +304,7 @@ class WindowGrouper(Grouper):
                 students = [student for student in students if
                             student not in student_windows[0]]
             else:
-                index += self.group_size
+                index += 1
         return grouper
 
 

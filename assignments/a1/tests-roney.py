@@ -4,7 +4,7 @@ from course import Student, Course, sort_students
 from criterion import LonelyMemberCriterion, HomogeneousCriterion, \
     HeterogeneousCriterion
 from grouper import slice_list, windows, Group, Grouping, AlphaGrouper, \
-    RandomGrouper, GreedyGrouper
+    RandomGrouper, GreedyGrouper, WindowGrouper
 from survey import Survey
 import random
 import string
@@ -242,6 +242,86 @@ def test_grouper() -> None:
     groups = gr.get_groups()
     assert groups[0]._member_id == [1, 3]
     assert groups[1]._member_id == [2]
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    s4 = Student(4, "d")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(True))
+    s3.set_answer(q, Answer(True))
+    s4.set_answer(q, Answer(True))
+    course_0.enroll_students([s1, s2, s3, s4])
+    s = Survey([q])
+    s.set_criterion(LonelyMemberCriterion(), q)
+    ag = WindowGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [1, 2]
+    assert groups[1]._member_id == [3, 4]
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    s4 = Student(4, "d")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(True))
+    s4.set_answer(q, Answer(False))
+    course_0.enroll_students([s1, s2, s3, s4])
+    s = Survey([q])
+    s.set_criterion(HeterogeneousCriterion(), q)
+    ag = WindowGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [1, 2]
+    assert groups[1]._member_id == [3, 4]
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    s4 = Student(4, "d")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(True))
+    s4.set_answer(q, Answer(False))
+    course_0.enroll_students([s1, s2, s3, s4])
+    s = Survey([q])
+    s.set_criterion(HomogeneousCriterion(), q)
+    ag = WindowGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [1, 2]
+    assert groups[1]._member_id == [3, 4]
+
+    course_0 = Course("Snake")
+    s1 = Student(1, "a")
+    s2 = Student(2, "b")
+    s3 = Student(3, "c")
+    s4 = Student(4, "d")
+    q = YesNoQuestion(1, "Is earth round")
+    s1.set_answer(q, Answer(True))
+    s2.set_answer(q, Answer(False))
+    s3.set_answer(q, Answer(False))
+    s4.set_answer(q, Answer(False))
+    course_0.enroll_students([s1, s2, s3, s4])
+    s = Survey([q])
+    s.set_criterion(HomogeneousCriterion(), q)
+    ag = WindowGrouper(2)
+    gr = ag.make_grouping(course_0, s)
+    assert len(gr) == 2
+    groups = gr.get_groups()
+    assert groups[0]._member_id == [2, 3]
+    assert groups[1]._member_id == [1, 4]
 
 
 if __name__ == '__main__':
