@@ -26,7 +26,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Tuple
 import pygame
 
-from actions import ACTION_MESSAGE, ROTATE_CLOCKWISE, ROTATE_COUNTER_CLOCKWISE,\
+from actions import ACTION_MESSAGE, ROTATE_CLOCKWISE, ROTATE_COUNTER_CLOCKWISE, \
     SWAP_HORIZONTAL, SWAP_VERTICAL, SMASH, PASS, PAINT, COMBINE, ACTION_PENALTY
 from block import Block
 from player import Player
@@ -49,7 +49,20 @@ def _block_to_squares(board: Block) -> List[Tuple[Tuple[int, int, int],
     The order of the squares does not matter.
     """
     # TODO: Implement me
-    return []  # FIXME
+    # len(board.children) == 0
+    if not board.children:
+        return [(board.colour, board.position, board.size)]
+    else:
+        board_to_draw = []
+        for child in board.children:
+            # Checking if this a node or leaf
+            # Nodes don't have colour
+            # If its a node then add its child recursively
+            if child.colour is None:
+                board_to_draw.extend(_block_to_squares(child))
+            else:
+                board_to_draw.append((child.colour, child.position, child.size))
+        return board_to_draw
 
 
 class GameData:

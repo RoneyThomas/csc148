@@ -204,18 +204,51 @@ class Block:
 
         If this Block's level is <max_depth>, do nothing. If this block has
         children, do nothing.
-        
+
         Return True iff the smash was performed.
         """
         # TODO: Implement me
-        return True  # FIXME
+        if self.smashable():
+            random_number = random.randint(0, 1)
+            # subdivide if true
+            if random_number < math.exp(-0.25 * self.level):
+                self.colour = None
+                s = (((self.size << 1) // 2) + 1) >> 1
+                # Position of Blocks in order of 0, 1, 2, 3
+                position = [(self.position[0] + s, self.position[1]),
+                            self.position,
+                            (self.position[0], self.position[1] + s),
+                            (self.position[0] + s, self.position[1] + s)]
+                # b0 = Block((self.position[0] + s, self.position[1]), s >> 1,
+                #            random.choice(COLOUR_LIST),
+                #            self.level + 1, self.max_depth)
+                # b1 = Block(self.position, s,
+                #            random.choice(COLOUR_LIST),
+                #            self.level + 1, self.max_depth)
+                # b2 = Block((self.position[0], self.position[1] + s), s,
+                #            random.choice(COLOUR_LIST),
+                #            self.level + 1, self.max_depth)
+                # b3 = Block((self.position[0] + s, self.position[1] + s), s,
+                #            random.choice(COLOUR_LIST),
+                #            self.level + 1, self.max_depth)
+                for p in position:
+                    b = Block(p, s,
+                              random.choice(COLOUR_LIST),
+                              self.level + 1, self.max_depth)
+                    self.children.append(b)
+            # change colour
+            else:
+                self.colour = random.choice(COLOUR_LIST)
+            return True
+        else:
+            return False
 
     def swap(self, direction: int) -> bool:
         """Swap the child Blocks of this Block.
 
         If this Block has no children, do nothing. Otherwise, if <direction> is
         1, swap vertically. If <direction> is 0, swap horizontally.
-        
+
         Return True iff the swap was performed.
 
         Precondition: <direction> is either 0 or 1
@@ -228,7 +261,7 @@ class Block:
 
         If this Block has no children, do nothing. If <direction> is 1, rotate
         clockwise. If <direction> is 3, rotate counter-clockwise.
-        
+
         Return True iff the rotate was performed.
 
         Precondition: <direction> is either 1 or 3.
@@ -272,6 +305,7 @@ class Block:
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'doctest', 'python_ta', 'random', 'typing', '__future__', 'math',
