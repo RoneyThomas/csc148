@@ -40,7 +40,12 @@ def generate_goals(num_goals: int) -> List[Goal]:
         - num_goals <= len(COLOUR_LIST)
     """
     # TODO: Implement Me
-    return [PerimeterGoal(COLOUR_LIST[0])]  # FIXME
+    goals = []
+    colours = random.sample(COLOUR_LIST, num_goals)
+    for g in range(num_goals):
+        rand_goal = random.choice([PerimeterGoal, BlobGoal])
+        goals.append(rand_goal(colours[g]))
+    return goals
 
 
 def _flatten(block: Block) -> List[List[Tuple[int, int, int]]]:
@@ -98,7 +103,13 @@ class PerimeterGoal(Goal):
 
     def description(self) -> str:
         # TODO: Implement me
-        return 'DESCRIPTION'  # FIXME
+        return 'The player must aim to put the most ' \
+               'possible units of a given colour c ' \
+               'on the outer perimeter of the board. ' \
+               'The player’s score is the total number ' \
+               'of unit cells of colour c that are on the perimeter. ' \
+               'There is a premium on corner cells: they count twice ' \
+               'towards the score.'  # FIXME
 
 
 class BlobGoal(Goal):
@@ -131,11 +142,18 @@ class BlobGoal(Goal):
 
     def description(self) -> str:
         # TODO: Implement me
-        return 'DESCRIPTION'  # FIXME
+        return 'The player must aim for the ' \
+               'largest “blob” of a given colour c. ' \
+               'A blob is a group of connected blocks ' \
+               'with the same colour. Two blocks are connected ' \
+               'if their sides touch; touching corners ' \
+               'doesn’t count. The player’s score is the number ' \
+               'of unit cells in the largest blob of colour c.'  # FIXME
 
 
 if __name__ == '__main__':
     import python_ta
+
     python_ta.check_all(config={
         'allowed-import-modules': [
             'doctest', 'python_ta', 'random', 'typing', 'block', 'settings',
