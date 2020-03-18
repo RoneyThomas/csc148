@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import Optional, Tuple, List
 import random
 import math
+import copy
 
 from settings import colour_name, COLOUR_LIST
 
@@ -193,7 +194,6 @@ class Block:
         for i, child in enumerate(self.children):
             child._update_children_positions(new_child_positions[i])
 
-
     def smashable(self) -> bool:
         """Return True iff this block can be smashed.
 
@@ -243,7 +243,29 @@ class Block:
         Precondition: <direction> is either 0 or 1
         """
         # TODO: Implement me
-        return True  # FIXME
+        if not self.children:
+            return False
+        else:
+            if direction == 1:
+                positions = [c.position for c in self.children]
+                positions.reverse()
+                for i, c in enumerate(self.children):
+                    c._update_children_positions(positions[i])
+                self.children.reverse()
+                return True
+            elif direction == 0:
+                positions = [self.children[1].position,
+                             self.children[0].position,
+                             self.children[3].position,
+                             self.children[2].position]
+                for i, c in enumerate(self.children):
+                    c._update_children_positions(positions[i])
+                self.children = [self.children[1],
+                                 self.children[0],
+                                 self.children[3],
+                                 self.children[2]]
+                return True
+            return False
 
     def rotate(self, direction: int) -> bool:
         """Rotate this Block and all its descendants.
@@ -256,7 +278,38 @@ class Block:
         Precondition: <direction> is either 1 or 3.
         """
         # TODO: Implement me
-        return True  # FIXME
+        if not self.children:
+            return False
+        else:
+            if direction == 1:
+                positions = [self.children[3].position,
+                             self.children[0].position,
+                             self.children[1].position,
+                             self.children[2].position]
+                for i, c in enumerate(self.children):
+                    c._update_children_positions(positions[i])
+                self.children = [self.children[1],
+                                 self.children[2],
+                                 self.children[3],
+                                 self.children[0]]
+                for child in self.children:
+                    child.rotate(direction)
+                return True
+            elif direction == 3:
+                positions = [self.children[1].position,
+                             self.children[2].position,
+                             self.children[3].position,
+                             self.children[0].position]
+                for i, c in enumerate(self.children):
+                    c._update_children_positions(positions[i])
+                self.children = [self.children[3],
+                                 self.children[0],
+                                 self.children[1],
+                                 self.children[2]]
+                for child in self.children:
+                    child.rotate(direction)
+                return True
+            return False
 
     def paint(self, colour: Tuple[int, int, int]) -> bool:
         """Change this Block's colour iff it is a leaf at a level of max_depth
@@ -265,7 +318,10 @@ class Block:
         Return True iff this Block's colour was changed.
         """
         # TODO: Implement me
-        return True  # FIXME
+        if self.level == self.max_depth and self.colour != colour:
+            self.colour = colour
+            return True
+        return False
 
     def combine(self) -> bool:
         """Turn this Block into a leaf based on the majority colour of its
@@ -281,7 +337,14 @@ class Block:
         Return True iff this Block was turned into a leaf node.
         """
         # TODO: Implement me
-        return True  # FIXME
+        if self.level == self.max_depth - 1 or self.children:
+            colour = [c.colour for c in self.children]
+            for c in colour:
+                if colour.count(c) >= 3:
+                    self.colour = c
+                    self.children = []
+                    return True
+        return False
 
     def create_copy(self) -> Block:
         """Return a new Block that is a deep copy of this Block.
@@ -289,7 +352,12 @@ class Block:
         Remember that a deep copy has new blocks (not aliases) at every level.
         """
         # TODO: Implement me
-        pass  # FIXME
+        block = Block(self.position, self.size, self.colour, self.level,
+                      self.max_depth)
+        if self.children:
+            for c in self.children:
+                block.children.append(c.create_copy())
+        return block
 
 
 if __name__ == '__main__':
