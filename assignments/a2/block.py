@@ -188,7 +188,11 @@ class Block:
         Block.
         """
         # TODO: Implement me
-        return  # FIXME
+        self.position = position
+        new_child_positions = self._children_positions()
+        for i, child in enumerate(self.children):
+            child._update_children_positions(new_child_positions[i])
+
 
     def smashable(self) -> bool:
         """Return True iff this block can be smashed.
@@ -209,39 +213,24 @@ class Block:
         """
         # TODO: Implement me
         if self.smashable():
-            random_number = random.randint(0, 1)
-            # subdivide if true
-            if random_number < math.exp(-0.25 * self.level):
-                self.colour = None
-                s = (((self.size << 1) // 2) + 1) >> 1
-                # Position of Blocks in order of 0, 1, 2, 3
-                position = [(self.position[0] + s, self.position[1]),
-                            self.position,
-                            (self.position[0], self.position[1] + s),
-                            (self.position[0] + s, self.position[1] + s)]
-                # b0 = Block((self.position[0] + s, self.position[1]), s >> 1,
-                #            random.choice(COLOUR_LIST),
-                #            self.level + 1, self.max_depth)
-                # b1 = Block(self.position, s,
-                #            random.choice(COLOUR_LIST),
-                #            self.level + 1, self.max_depth)
-                # b2 = Block((self.position[0], self.position[1] + s), s,
-                #            random.choice(COLOUR_LIST),
-                #            self.level + 1, self.max_depth)
-                # b3 = Block((self.position[0] + s, self.position[1] + s), s,
-                #            random.choice(COLOUR_LIST),
-                #            self.level + 1, self.max_depth)
-                for p in position:
-                    b = Block(p, s,
-                              random.choice(COLOUR_LIST),
-                              self.level + 1, self.max_depth)
-                    self.children.append(b)
-            # change colour
-            else:
-                self.colour = random.choice(COLOUR_LIST)
+            # If a block is smashed and is smashable,
+            # then it must be sub-divided into four children.
+            self.colour = None
+            position = self._children_positions()
+            size = self._child_size()
+            for p in position:
+                b = Block(p, size, random.choice(COLOUR_LIST),
+                          self.level + 1, self.max_depth)
+                random_number = random.randint(0, 1)
+                if random_number < math.exp(-0.25 * self.level):
+                    b.smash()
+                # Don't need to set child colour randomly
+                # as we are setting it first in line 222
+                # else:
+                #     b.colour = random.choice(COLOUR_LIST)
+                self.children.append(b)
             return True
-        else:
-            return False
+        return False
 
     def swap(self, direction: int) -> bool:
         """Swap the child Blocks of this Block.
