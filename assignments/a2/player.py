@@ -47,8 +47,19 @@ def create_players(num_human: int, num_random: int, smart_players: List[int]) \
     <smart_players> should be applied to each SmartPlayer object, in order.
     """
     # TODO: Implement Me
-    goals = generate_goals(1)  # FIXME
-    return [HumanPlayer(0, goals[0])]  # FIXME
+    players = []
+    goals = generate_goals(num_human + num_random + len(smart_players))
+
+    for i in range(num_human):
+        players.append(HumanPlayer(i, goals[i]))
+
+    for i in range(num_random):
+        players.append(RandomPlayer(num_human + i, goals[num_human + i]))
+
+    base = num_human + num_random
+    for i, x in enumerate(smart_players):
+        players.append(SmartPlayer(base + i, goals[base + i], x))
+    return players
 
 
 def _get_block(block: Block, location: Tuple[int, int], level: int) -> \
@@ -70,7 +81,20 @@ def _get_block(block: Block, location: Tuple[int, int], level: int) -> \
         - 0 <= level <= max_depth
     """
     # TODO: Implement me
-    return None  # FIXME
+    # Returning the block at the right level
+    # No need to check if the location is in the block as we
+    # Are selecting the right block in the elif statement
+    if block.level == level:
+        return block
+    elif block.children:
+        for child in block.children:
+            if child.position[0] <= location[0] < (
+                    child.position[0] + child.size):
+                if child.position[1] <= location[1] < (
+                        child.position[1] + child.size):
+                    return _get_block(child, location, level)
+    else:
+        return None
 
 
 class Player:
@@ -211,7 +235,7 @@ class RandomPlayer(Player):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self._proceed = True
 
-    def generate_move(self, board: Block) ->\
+    def generate_move(self, board: Block) -> \
             Optional[Tuple[str, Optional[int], Block]]:
         """Return a valid, randomly generated move.
 
@@ -247,7 +271,7 @@ class SmartPlayer(Player):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self._proceed = True
 
-    def generate_move(self, board: Block) ->\
+    def generate_move(self, board: Block) -> \
             Optional[Tuple[str, Optional[int], Block]]:
         """Return a valid move by assessing multiple valid moves and choosing
         the move that results in the highest score for this player's goal (i.e.,
