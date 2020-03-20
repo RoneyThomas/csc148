@@ -63,8 +63,8 @@ def _flatten(block: Block) -> List[List[Tuple[int, int, int]]]:
     L[0][0] represents the unit cell in the upper left corner of the Block.
     """
     # TODO: Implement me
-    s = 2 ** (block.max_depth - block.level)
     if not block.children:
+        s = 2 ** (block.max_depth - block.level)
         return [[block.colour for _ in range(s)] for _ in range(s)]
     else:
         flat_1 = []
@@ -114,7 +114,18 @@ class Goal:
 class PerimeterGoal(Goal):
     def score(self, board: Block) -> int:
         # TODO: Implement me
-        return 148  # FIXME
+        flatten_board = _flatten(board)
+        score = 0
+        for i in range(len(flatten_board)):
+            if flatten_board[i][0] == self.colour:
+                score += 1
+            if flatten_board[i][len(flatten_board) - 1] == self.colour:
+                score += 1
+            if flatten_board[0][i] == self.colour:
+                score += 1
+            if flatten_board[len(flatten_board) - 1][i] == self.colour:
+                score += 1
+        return score
 
     def description(self) -> str:
         # TODO: Implement me
