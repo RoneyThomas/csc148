@@ -63,7 +63,22 @@ def _flatten(block: Block) -> List[List[Tuple[int, int, int]]]:
     L[0][0] represents the unit cell in the upper left corner of the Block.
     """
     # TODO: Implement me
-    return []  # FIXME
+    s = 2 ** (block.max_depth - block.level)
+    if not block.children:
+        return [[block.colour for _ in range(s)] for _ in range(s)]
+    else:
+        flat_1 = []
+        flat_2 = []
+        b_0 = _flatten(block.children[1])
+        b_1 = _flatten(block.children[2])
+        b_2 = _flatten(block.children[0])
+        b_3 = _flatten(block.children[3])
+        for a, b, c, d in zip(b_0, b_1, b_2, b_3):
+            a.extend(b)
+            flat_1.append(a)
+            c.extend(d)
+            flat_2.append(c)
+        return flat_1 + flat_2
 
 
 class Goal:
