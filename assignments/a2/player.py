@@ -212,7 +212,7 @@ class HumanPlayer(Player):
             return None
         else:
             move = _create_move(self._desired_action, block)
-
+            print(move)
             self._desired_action = None
             return move
 
@@ -226,6 +226,8 @@ class RandomPlayer(Player):
 
     def __init__(self, player_id: int, goal: Goal) -> None:
         # TODO: Implement Me
+        Player.__init__(self, player_id, goal)
+
         self._proceed = False
 
     def get_selected_block(self, board: Block) -> Optional[Block]:
@@ -248,9 +250,29 @@ class RandomPlayer(Player):
             return None  # Do not remove
 
         # TODO: Implement Me
+        move = None
+        # Randomly selects current block or its children
+        # True for current board
+        choice = random.randint(True, False)
+        if choice:
+            # If the board has no children and we haven't reached the max_level
+            # Then smash
+            if not board.children and board.level < board.max_level:
+                move = _create_move(('smash', None), board)
+            else:
+                # If the board has children then we can either rotate or swap
+                if random.randint(True, False):
+                    move = _create_move(('rotate', random.choice([1, 3])),
+                                        board)
+                else:
+                    move = _create_move(('swap', random.choice([0, 1])), board)
+        else:
+            # We are selecting children
+            move = self.generate_move(board.children[random.choice(range(4))])
+        # Randomly selects move based on if the current block is node or leaf
 
         self._proceed = False  # Must set to False before returning!
-        return None  # FIXME
+        return move
 
 
 class SmartPlayer(Player):

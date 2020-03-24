@@ -141,7 +141,20 @@ class PerimeterGoal(Goal):
 class BlobGoal(Goal):
     def score(self, board: Block) -> int:
         # TODO: Implement me
-        return 148  # FIXME
+        flatten_board = _flatten(board)
+        visited: List[List[int]] = [[-1 for _ in range(len(flatten_board))] for
+                                    _ in
+                                    range(len(flatten_board))]
+        score = []
+        for i in range(len(flatten_board)):
+            for j in range(len(flatten_board)):
+                if visited[i][j] == -1 and flatten_board[i][j] == self.colour:
+                    score.append(
+                        self._undiscovered_blob_size((i, j), flatten_board,
+                                                     visited))
+                elif visited[i][j] == -1 and flatten_board[i][j] != self.colour:
+                    visited[i][j] = 0
+        return max(score)
 
     def _undiscovered_blob_size(self, pos: Tuple[int, int],
                                 board: List[List[Tuple[int, int, int]]],
@@ -164,7 +177,30 @@ class BlobGoal(Goal):
         either 0 or 1.
         """
         # TODO: Implement me
-        pass  # FIXME
+        s = 1
+        y, x = pos
+        visited[y][x] = 1
+        if y > 0 and visited[y - 1][x] == -1:
+            if board[y - 1][x] == self.colour:
+                s += self._undiscovered_blob_size((y - 1, x), board, visited)
+            else:
+                visited[y - 1][x] = 0
+        if y < len(board) - 1 and visited[y + 1][x] == -1:
+            if board[y + 1][x] == self.colour:
+                s += self._undiscovered_blob_size((y + 1, x), board, visited)
+            else:
+                visited[y + 1][x] = 0
+        if x > 0 and visited[y][x - 1] == -1:
+            if board[y][x - 1] == self.colour:
+                s += self._undiscovered_blob_size((y, x - 1), board, visited)
+            else:
+                visited[y][x - 1] = 0
+        if x < len(board) - 1 and visited[y][x + 1] == -1:
+            if board[y][x + 1] == self.colour:
+                s += self._undiscovered_blob_size((y, x + 1), board, visited)
+            else:
+                visited[y][x + 1] = 0
+        return s
 
     def description(self) -> str:
         # TODO: Implement me
