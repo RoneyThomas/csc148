@@ -217,6 +217,47 @@ class HumanPlayer(Player):
             return move
 
 
+def _random_move(board: Block, colour: Tuple[int, int, int]) -> Tuple[str, Optional[int], Block]:
+    choice, move, chance = None, None, 3
+
+    test_board = board.create_copy()
+    if board.children:
+        choice = random.choice([1, 2, 3])
+    else:
+        choice = random.choice([4, 5])
+
+    while move is None and chance > 0:
+        if choice == 1:
+            if test_board.combine():
+                move = _create_move(('combine', None), board)
+                choice = random.choice([2, 3])
+                chance -= 1
+        elif choice == 2:
+            if test_board.rotate(random.choice([1, 3])):
+                move = _create_move(('rotate', random.choice([1, 3])), board)
+                choice = random.choice([1, 3])
+                chance -= 1
+        elif choice == 3:
+            if test_board.swap(random.choice([0, 1])):
+                move = _create_move(('swap', random.choice([0, 1])), board)
+                choice = random.choice([1, 2])
+                chance -= 1
+        elif choice == 4:
+            if test_board.smash():
+                move = _create_move(('smash', None), board)
+                choice = 5
+                chance -= 1
+        elif choice == 5:
+            if test_board.paint(colour):
+                move = _create_move(('paint', None), board)
+                choice = 4
+                chance -= 1
+    if move is None:
+        return _random_move(Block, colour)
+    else:
+        return move
+
+
 class RandomPlayer(Player):
     # === Private Attributes ===
     # _proceed:
@@ -251,26 +292,16 @@ class RandomPlayer(Player):
 
         # TODO: Implement Me
         move = None
-        # Randomly selects current block or its children
-        # True for current board
-        choice = random.randint(True, False)
-        if choice:
-            # If the board has no children and we haven't reached the max_level
-            # Then smash
-            if not board.children and board.level < board.max_level:
-                move = _create_move(('smash', None), board)
+        test_board = board.create_copy()
+        # Randomly selects a level to make move on
+        while move is None:
+            level = random.randint(board.level, board.max_depth)
+            if level == test_board.level:
+                move = _random_move(test_board, self.goal.colour)
             else:
-                # If the board has children then we can either rotate or swap
-                if random.randint(True, False):
-                    move = _create_move(('rotate', random.choice([1, 3])),
-                                        board)
-                else:
-                    move = _create_move(('swap', random.choice([0, 1])), board)
-        else:
-            # We are selecting children
-            move = self.generate_move(board.children[random.choice(range(4))])
-        # Randomly selects move based on if the current block is node or leaf
-
+                while test_board.level < level and test_board.children:
+                    test_board = board.children[random.randint(0, 3)]
+                    move = _random_move(test_board, self.goal.colour)
         self._proceed = False  # Must set to False before returning!
         return move
 
@@ -284,6 +315,7 @@ class SmartPlayer(Player):
 
     def __init__(self, player_id: int, goal: Goal, difficulty: int) -> None:
         # TODO: Implement Me
+        Player.__init__(self, player_id, goal)
         self._proceed = False
 
     def get_selected_block(self, board: Block) -> Optional[Block]:
