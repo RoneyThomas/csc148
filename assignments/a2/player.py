@@ -217,7 +217,8 @@ class HumanPlayer(Player):
             return move
 
 
-def _random_move(board: Block, colour: Tuple[int, int, int]) -> Tuple[str, Optional[int], Block]:
+def _random_move(board: Block, colour: Tuple[int, int, int]) -> Tuple[
+    str, Optional[int], Block]:
     choice, move, chance = None, None, 3
 
     test_board = board.create_copy()
@@ -312,10 +313,12 @@ class SmartPlayer(Player):
     #   True when the player should make a move, False when the player should
     #   wait.
     _proceed: bool
+    _difficulty: int
 
     def __init__(self, player_id: int, goal: Goal, difficulty: int) -> None:
         # TODO: Implement Me
         Player.__init__(self, player_id, goal)
+        self._difficulty = difficulty
         self._proceed = False
 
     def get_selected_block(self, board: Block) -> Optional[Block]:
@@ -341,7 +344,17 @@ class SmartPlayer(Player):
             return None  # Do not remove
 
         # TODO: Implement Me
-
+        move = None
+        test_board = board.create_copy()
+        # Randomly selects a level to make move on
+        while move is None:
+            level = random.randint(board.level, board.max_depth)
+            if level == test_board.level:
+                move = _random_move(test_board, self.goal.colour)
+            else:
+                while test_board.level < level and test_board.children:
+                    test_board = board.children[random.randint(0, 3)]
+                    move = _random_move(test_board, self.goal.colour)
         self._proceed = False  # Must set to False before returning!
         return None  # FIXME
 
