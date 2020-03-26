@@ -25,7 +25,6 @@ from __future__ import annotations
 from typing import Optional, Tuple, List
 import random
 import math
-import copy
 
 from settings import colour_name, COLOUR_LIST
 
