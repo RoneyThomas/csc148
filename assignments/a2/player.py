@@ -212,51 +212,49 @@ class HumanPlayer(Player):
             return None
         else:
             move = _create_move(self._desired_action, block)
-            print(move)
             self._desired_action = None
+            print(move)
             return move
 
 
-def _random_move(board: Block, colour: Tuple[int, int, int]) -> Tuple[
-    str, Optional[int], Block]:
-    choice, move, chance = None, None, 3
-
-    test_board = board.create_copy()
-    if board.children:
-        choice = random.choice([1, 2, 3])
-    else:
-        choice = random.choice([4, 5])
-
-    while move is None and chance > 0:
+def _random_move(choices: List, board: Block, colour: Tuple[int, int, int]) -> \
+        Tuple[str, Optional[int], Block]:
+    chances = 3
+    move = None
+    while move is None and chances >= 0:
+        choice = random.choice(choices)
+        sample_board = board.create_copy()
         if choice == 1:
-            if test_board.combine():
-                move = _create_move(('combine', None), board)
-                choice = random.choice([2, 3])
-                chance -= 1
+            if sample_board.combine():
+                move = _create_move(('combine', None),
+                                    _get_block(board, sample_board.position,
+                                               sample_board.level))
+                chances -= 1
         elif choice == 2:
-            if test_board.rotate(random.choice([1, 3])):
-                move = _create_move(('rotate', random.choice([1, 3])), board)
-                choice = random.choice([1, 3])
-                chance -= 1
+            if sample_board.rotate(random.choice([1, 3])):
+                move = _create_move(('rotate', random.choice([1, 3])),
+                                    _get_block(board, sample_board.position,
+                                               sample_board.level))
+                chances -= 1
         elif choice == 3:
-            if test_board.swap(random.choice([0, 1])):
-                move = _create_move(('swap', random.choice([0, 1])), board)
-                choice = random.choice([1, 2])
-                chance -= 1
+            if sample_board.swap(random.choice([0, 1])):
+                move = _create_move(('swap', random.choice([0, 1])),
+                                    _get_block(board, sample_board.position,
+                                               sample_board.level))
+                chances -= 1
         elif choice == 4:
-            if test_board.smash():
-                move = _create_move(('smash', None), board)
-                choice = 5
-                chance -= 1
+            if sample_board.smash():
+                move = _create_move(('smash', None),
+                                    _get_block(board, sample_board.position,
+                                               sample_board.level))
+                chances -= 1
         elif choice == 5:
-            if test_board.paint(colour):
-                move = _create_move(('paint', None), board)
-                choice = 4
-                chance -= 1
-    if move is None:
-        return _random_move(Block, colour)
-    else:
-        return move
+            if sample_board.paint(colour):
+                move = _create_move(('paint', None),
+                                    _get_block(board, sample_board.position,
+                                               sample_board.level))
+                chances -= 1
+    return move
 
 
 class RandomPlayer(Player):
@@ -293,17 +291,30 @@ class RandomPlayer(Player):
 
         # TODO: Implement Me
         move = None
-        test_board = board.create_copy()
-        # Randomly selects a level to make move on
         while move is None:
+            test_board = board.create_copy()
             level = random.randint(board.level, board.max_depth)
-            if level == test_board.level:
-                move = _random_move(test_board, self.goal.colour)
+            while test_board.level < level:
+                if test_board.children:
+                    test_board = test_board.children[random.randint(0, 3)]
+                else:
+                    break
+            if test_board.children:
+                if level == board.max_depth - 1:
+                    move = _random_move([1, 2, 3], test_board,
+                                        self.goal.colour)
+                else:
+                    move = _random_move([2, 3], test_board,
+                                        self.goal.colour)
             else:
-                while test_board.level < level and test_board.children:
-                    test_board = board.children[random.randint(0, 3)]
-                    move = _random_move(test_board, self.goal.colour)
+                if test_board.smashable():
+                    move = _random_move([4], test_board,
+                                        self.goal.colour)
+                elif test_board.level == board.max_depth:
+                    move = _random_move([5], test_board,
+                                        self.goal.colour)
         self._proceed = False  # Must set to False before returning!
+        print(f'random move{move}')
         return move
 
 
@@ -344,17 +355,17 @@ class SmartPlayer(Player):
             return None  # Do not remove
 
         # TODO: Implement Me
-        move = None
-        test_board = board.create_copy()
-        # Randomly selects a level to make move on
-        while move is None:
-            level = random.randint(board.level, board.max_depth)
-            if level == test_board.level:
-                move = _random_move(test_board, self.goal.colour)
-            else:
-                while test_board.level < level and test_board.children:
-                    test_board = board.children[random.randint(0, 3)]
-                    move = _random_move(test_board, self.goal.colour)
+        # move = None
+        # test_board = board.create_copy()
+        # # Randomly selects a level to make move on
+        # while move is None:
+        #     level = random.randint(board.level, board.max_depth)
+        #     if level == test_board.level:
+        #         move = _random_move(test_board, self.goal.colour)
+        #     else:
+        #         while test_board.level < level and test_board.children:
+        #             test_board = board.children[random.randint(0, 3)]
+        #             move = _random_move(test_board, self.goal.colour)
         self._proceed = False  # Must set to False before returning!
         return None  # FIXME
 
