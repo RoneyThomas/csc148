@@ -77,13 +77,22 @@ def find_runs(lst: list) -> List[Tuple[int, int]]:
     # Keep track of the start and end points of a run.
     run_start = 0
     run_end = 1
+    return_lst: List[Tuple[int, int]] = []
     while run_end < len(lst):
         # How can you tell if a run should continue?
         #   (When you do, update run_end.)
 
         # How can you tell if a run is over?
         #   (When you do, update runs, run_start, and run_end.)
-        pass
+        if lst[run_end] > lst[run_end - 1]:
+            run_end += 1
+        else:
+            return_lst.append((run_start, run_end))
+            run_start = run_end
+            run_end += 1
+        if run_end == len(lst):
+            return_lst.append((run_start, run_end))
+    return return_lst
 
 
 ###############################################################################
@@ -112,7 +121,9 @@ def timsort(lst: list) -> None:
     # HINT: you should be able to use the "_merge" function provided
     # in this file.
 
-    pass
+    while len(runs) > 1:
+        _merge(lst, runs[0][0], runs[0][1], runs[1][1])
+        runs = find_runs(lst)
 
 
 ###############################################################################
@@ -187,7 +198,7 @@ def insertion_sort(lst: list, start: int, end: int) -> None:
             lst[left + 1:i + 1] = lst[left:i]
             lst[left] = num
         else:
-            lst[right+1:i+1] = lst[right:i]
+            lst[right + 1:i + 1] = lst[right:i]
             lst[right] = num
 
 
@@ -209,7 +220,6 @@ def timsort2(lst: list) -> None:
     """Sort the given list using the version of timsort from Task 6.
     """
     pass
-
 
 # if __name__ == '__main__':
 #     import doctest

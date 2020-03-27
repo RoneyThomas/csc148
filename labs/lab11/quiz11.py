@@ -12,6 +12,7 @@ Take advantage of the fact that the input list is sorted! Your algorithm should 
 
 from typing import List
 
+
 def remove_duplicates(lst: List) -> List:
     """Return a sorted list containing the same values as <lst>, but without duplicates.
 
@@ -20,8 +21,13 @@ def remove_duplicates(lst: List) -> List:
     >>> remove_duplicates([1, 2, 2, 2, 3, 10, 10, 20])
     [1, 2, 3, 10, 20]
     """
-    return list(set(lst))
+    seen = []
+    append = seen.append
+    for item in lst:
+        if item not in seen:
+            append(item)
+    return seen
 
 
-# if __name__ == '__main__':
-#     remove_duplicates([1, 2, 2, 2, 3, 10, 10, 20])
+if __name__ == '__main__':
+    remove_duplicates([1, 2, 2, 2, 3, 10, 10, 20])
