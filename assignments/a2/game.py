@@ -117,7 +117,7 @@ def create_sample_game() -> Game:
     return Game(3, 1, 1, [6])
 
 def create_random_game() -> Game:
-    return Game(3, 1, 1, [])
+    return Game(3, 1, 0, [6])
 
 
 if __name__ == '__main__':
