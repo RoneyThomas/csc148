@@ -89,10 +89,10 @@ def _get_block(block: Block, location: Tuple[int, int], level: int) -> \
     elif block.children:
         for child in block.children:
             if child.position[0] <= location[0] < (
-                    child.position[0] + child.size):
-                if child.position[1] <= location[1] < (
-                        child.position[1] + child.size):
-                    return _get_block(child, location, level)
+                    child.position[0] + child.size) and child.position[1] <= \
+                    location[1] < (child.position[1] + child.size):
+                return _get_block(child, location, level)
+        return None
     else:
         return None
 
@@ -218,8 +218,8 @@ class HumanPlayer(Player):
 
 
 def _random_move(choices: List, board: Block, score: bool = False) -> \
-        Tuple[Tuple[Tuple[str, Optional[int]], Tuple[int, int], int],
-              Optional[List[Block]]]:
+        (Tuple[Tuple[str, Optional[int]], Tuple[int, int], int],
+         Optional[List[Block]]):
     chances = 3
     move: Union[
         Tuple[Tuple[str, Optional[int]], Tuple[int, int], int], None] = None
@@ -230,32 +230,23 @@ def _random_move(choices: List, board: Block, score: bool = False) -> \
         choice = random.choice(choices)
         score_board = board.create_copy()
         sample_board = score_board
-        if choice == 1:
-            if sample_board.combine():
-                print("Board combine")
-                move = (
-                    ('combine', None), sample_board.position,
+        if choice == 1 and sample_board.combine():
+            print("Board combine")
+            move = (COMBINE, sample_board.position,
                     sample_board.level)
-                chances -= 1
-                if score:
-                    score_boards.append(score_board)
-        elif choice == 2:
-            if sample_board.rotate(random.choice([1, 3])):
-                print("Board rotate")
-                move = (
-                    ('rotate', random.choice([1, 3])), sample_board.position,
-                    sample_board.level)
-                chances -= 1
-                if score:
-                    score_boards.append(score_board)
-        elif choice == 3:
-            if sample_board.swap(random.choice([0, 1])):
-                print("Board swap")
-                move = (('swap', random.choice([0, 1])), sample_board.position,
-                        sample_board.level)
-                chances -= 1
-                if score:
-                    score_boards.append(score_board)
+        elif choice == 2 and sample_board.rotate(random.choice([1, 3])):
+            print("Board rotate")
+            choice = random.choice([ROTATE_CLOCKWISE,
+                                    ROTATE_COUNTER_CLOCKWISE])
+            move = (choice, sample_board.position, sample_board.level)
+        elif choice == 3 and sample_board.swap(random.choice([0, 1])):
+            print("Board swap")
+            choice = random.choice([SWAP_HORIZONTAL, SWAP_VERTICAL])
+            move = (choice, sample_board.position, sample_board.level)
+        if move is not None:
+            chances -= 1
+        if score:
+            score_boards.append(score_board)
     if score:
         return move, score_boards
     else:
@@ -264,8 +255,8 @@ def _random_move(choices: List, board: Block, score: bool = False) -> \
 
 def _generate_action(board: Block, n: int, colour: Tuple[int, int, int],
                      score: bool = False) -> \
-        Tuple[List[Tuple[Tuple[str, Optional[int]], Tuple[int, int], int]],
-              Optional[List[Block]]]:
+        (List[Tuple[Tuple[str, Optional[int]], Tuple[int, int], int]],
+         Optional[List[Block]]):
     action = []
     chances = 3 * n
     score_boards: List[Block] = []
@@ -273,6 +264,8 @@ def _generate_action(board: Block, n: int, colour: Tuple[int, int, int],
         print("Move is None")
         sample_board = board.create_copy()
         test_board = sample_board
+        move: Tuple[Tuple[str, Optional[int]], Tuple[int, int], int] = tuple()
+        score_board: List[Block] = []
         # First we are randomly selecting a level we want
         level = random.randint(board.level, board.max_depth)
         # This while loop sets the current block to level randomly selected
@@ -292,33 +285,26 @@ def _generate_action(board: Block, n: int, colour: Tuple[int, int, int],
             print("Board has childrens")
             if level == board.max_depth - 1:
                 move, score_board = _random_move([1, 2, 3], test_board, score)
-                action.append(move)
-                if score:
-                    score_boards.extend(score_board)
             else:
                 move, score_board = _random_move([2, 3], test_board, score)
-                action.append(move)
-                if score:
-                    score_boards.extend(score_board)
         # If there is no children then the valid moves are smash and pain
         # paint can only be applied if our current level==max_level
         # smash can be only applied if our current level < max_level
-        else:
+        elif test_board.smash():
             print("Board has no childrens")
-            if test_board.smash():
-                print("Board is smashable")
-                action.append((
-                    ('smash', None), test_board.position, test_board.level))
-                if score:
-                    score_boards.append(sample_board)
-            elif test_board.level == board.max_depth:
-                print("Board can be painted")
-                if test_board.paint(colour):
-                    action.append((
-                        ('paint', None), test_board.position,
-                        test_board.level))
-                    if score:
-                        score_boards.append(sample_board)
+            print("Board is smashable")
+            move = (SMASH, test_board.position, test_board.level)
+            score_board = sample_board
+        elif test_board.level == board.max_depth and test_board.paint(
+                colour):
+            print("Board can be painted")
+            move = (PAINT, test_board.position, test_board.level)
+            score_board = sample_board
+        if move:
+            action.append(move)
+            chances -= 1
+        if score:
+            score_boards.append(score_board)
     if score:
         return action, score_boards
     else:
