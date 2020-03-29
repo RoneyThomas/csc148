@@ -22,7 +22,6 @@ Misha Schwartz, and Jaisie Sin
 This file contains the hierarchy of Goal classes.
 """
 from __future__ import annotations
-import math
 import random
 from typing import List, Tuple
 from block import Block
@@ -112,6 +111,15 @@ class Goal:
 
 
 class PerimeterGoal(Goal):
+    """A player goal in the game of Blocky.
+
+    This is a subclass of abstract Goal class
+
+    PerimeterGoal implements score and description method's
+
+    PerimeterGoal computes score based on the block at perimeter of the Block
+    """
+
     def score(self, board: Block) -> int:
         # TODO: Implement me
         flatten_board = _flatten(board)
@@ -129,16 +137,20 @@ class PerimeterGoal(Goal):
 
     def description(self) -> str:
         # TODO: Implement me
-        return 'The player must aim to put the most ' \
-               'possible units of a given colour c ' \
-               'on the outer perimeter of the board. ' \
-               'The player’s score is the total number ' \
-               'of unit cells of colour c that are on the perimeter. ' \
-               'There is a premium on corner cells: they count twice ' \
-               'towards the score.'  # FIXME
+        return f'Maximize the presence of ' \
+               f'{colour_name(self.colour)} on the perimeter'
 
 
 class BlobGoal(Goal):
+    """A player goal in the game of Blocky.
+
+    This is a subclass of abstract Goal class
+
+    BlobGoal implements score and description method's
+
+    BlobGoal computes score based on the largest blob with the Goal colour
+    """
+
     def score(self, board: Block) -> int:
         # TODO: Implement me
         flatten_board = _flatten(board)
@@ -204,13 +216,7 @@ class BlobGoal(Goal):
 
     def description(self) -> str:
         # TODO: Implement me
-        return 'The player must aim for the ' \
-               'largest “blob” of a given colour c. ' \
-               'A blob is a group of connected blocks ' \
-               'with the same colour. Two blocks are connected ' \
-               'if their sides touch; touching corners ' \
-               'doesn’t count. The player’s score is the number ' \
-               'of unit cells in the largest blob of colour c.'  # FIXME
+        return f'Maximize {colour_name(self.colour)} to form largest blob'
 
 
 if __name__ == '__main__':

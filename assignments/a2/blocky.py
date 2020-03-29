@@ -26,8 +26,9 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Tuple
 import pygame
 
-from actions import ACTION_MESSAGE, ROTATE_CLOCKWISE, ROTATE_COUNTER_CLOCKWISE, \
-    SWAP_HORIZONTAL, SWAP_VERTICAL, SMASH, PASS, PAINT, COMBINE, ACTION_PENALTY
+from actions import ACTION_MESSAGE, ROTATE_CLOCKWISE, \
+    ROTATE_COUNTER_CLOCKWISE, SWAP_HORIZONTAL, SWAP_VERTICAL, SMASH, \
+    PASS, PAINT, COMBINE, ACTION_PENALTY
 from block import Block
 from player import Player
 from renderer import Renderer

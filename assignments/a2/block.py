@@ -246,7 +246,9 @@ class Block:
             return False
         else:
             if direction == 1:
-                positions = [c.position for c in self.children]
+                positions = []
+                for c in self.children:
+                    positions.append(c.position)
                 positions.reverse()
                 for i, c in enumerate(self.children):
                     c._update_children_positions(positions[i])
@@ -337,7 +339,9 @@ class Block:
         """
         # TODO: Implement me
         if self.level == self.max_depth - 1 or self.children:
-            colour = [c.colour for c in self.children]
+            colour = []
+            for c in self.children:
+                colour.append(c.colour)
             for c in colour:
                 if colour.count(c) >= 3:
                     self.colour = c
