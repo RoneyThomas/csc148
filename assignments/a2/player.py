@@ -301,10 +301,7 @@ def _generate_action(board: Block, n: int, colour: Tuple[int, int, int],
             chances -= 1
             if goal is not None:
                 scores.append(goal.score(sample_board))
-    if goal is not None:
-        return action, scores
-    else:
-        return action, None
+    return action, scores
 
 
 class RandomPlayer(Player):
@@ -340,12 +337,13 @@ class RandomPlayer(Player):
             return None  # Do not remove
 
         # TODO: Implement Me
-        action = _generate_action(board, 1, self.goal.colour)[0][0]
+        action, _ = _generate_action(board, 1, self.goal.colour)
         # Up till this point we were
         # applying our moves to a copy of board object
         # Now it's time for us to find the correct block in our board object
         # We use _get_block for that and assemble our move with _create_move()
-        move = _create_move(action[0], _get_block(board, action[1], action[2]))
+        move = _create_move(action[0][0],
+                            _get_block(board, action[0][1], action[0][2]))
         self._proceed = False  # Must set to False before returning!
         print(f'random move{move}')
         return move
