@@ -84,25 +84,14 @@ def _get_block(block: Block, location: Tuple[int, int], level: int) -> \
     # Returning the block at the right level
     # No need to check if the location is in the block as we
     # Are selecting the right block in the elif statement
-    # if block.level == level:
-    #     return block
-    # for child in block.children:
-    #     if child.position[0] <= location[0] < (
-    #             child.position[0] + child.size) and child.position[1] <= \
-    #             location[1] < (child.position[1] + child.size):
-    #         return _get_block(child, location, level)
-    # return None
     if block.level == level:
         return block
-    elif block.children:
-        for child in block.children:
-            if child.position[0] <= location[0] < (
-                    child.position[0] + child.size):
-                if child.position[1] <= location[1] < (
-                        child.position[1] + child.size):
-                    return _get_block(child, location, level)
-    else:
-        return None
+    for child in block.children:
+        if child.position[0] <= location[0] < (
+                child.position[0] + child.size) and child.position[1] <= \
+                location[1] < (child.position[1] + child.size):
+            return _get_block(child, location, level)
+    return None
 
 
 class Player:
@@ -225,7 +214,7 @@ class HumanPlayer(Player):
             return move
 
 
-def _random_move(choices: List, board: Block, goal: Optional[Goal] = None) -> \
+def _random_move(choices: List, board: Block) -> \
         Tuple[Tuple[str, Optional[int]], Tuple[int, int], int]:
     chances = 3
     move: Union[
@@ -271,7 +260,6 @@ def _generate_action(board: Block, n: int, colour: Tuple[int, int, int],
         sample_board = board.create_copy()
         test_board = sample_board
         move: Tuple[Tuple[str, Optional[int]], Tuple[int, int], int] = tuple()
-        score_board: Block
         # First we are randomly selecting a level we want
         level = random.randint(board.level, board.max_depth)
         print(f'4: Random level {level}')
