@@ -312,6 +312,7 @@ class Block:
                 return True
             return False
 
+
     def paint(self, colour: Tuple[int, int, int]) -> bool:
         """Change this Block's colour iff it is a leaf at a level of max_depth
         and its colour is different from <colour>.
@@ -338,7 +339,7 @@ class Block:
         Return True iff this Block was turned into a leaf node.
         """
         # TODO: Implement me
-        if self.level == self.max_depth - 1 or self.children:
+        if self.level == self.max_depth - 1 and self.children:
             colour = []
             for c in self.children:
                 colour.append(c.colour)

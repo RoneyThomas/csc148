@@ -136,7 +136,7 @@ if __name__ == '__main__':
     # If you want to run the same game sequence each time, to assist with
     # debugging, uncomment-out the call to random.seed.
     import random
-    random.seed(1001)
+    # random.seed(1001)
 
     # game = create_sample_game()
     # game = create_auto_game()
