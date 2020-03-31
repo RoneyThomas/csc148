@@ -191,6 +191,8 @@ class BlobGoal(Goal):
         # TODO: Implement me
         s = 1
         y, x = pos
+        if y > len(pos) or x > len(pos):
+            return 0
         visited[y][x] = 1
         if y > 0 and visited[y - 1][x] == -1:
             if board[y - 1][x] == self.colour:
