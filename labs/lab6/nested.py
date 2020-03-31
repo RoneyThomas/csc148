@@ -69,7 +69,7 @@ def nested_list_equal(obj1: Union[int, List], obj2: Union[int, List]) -> bool:
     if isinstance(obj1, int) & isinstance(obj2, int):
         return obj1 == obj2
     else:
-        if type(obj1) != len(obj2):
+        if len(obj1) != len(obj2):
             return False
         for o1, o2 in zip(obj1, obj2):
             if not nested_list_equal(o1, o2):

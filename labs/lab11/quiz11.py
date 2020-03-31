@@ -22,10 +22,11 @@ def remove_duplicates(lst: List) -> List:
     [1, 2, 3, 10, 20]
     """
     seen = []
-    append = seen.append
+    last_seen = None
     for item in lst:
-        if item not in seen:
-            append(item)
+        if last_seen != item:
+            seen.append(item)
+            last_seen = item
     return seen
 
 

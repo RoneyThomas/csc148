@@ -263,6 +263,98 @@ class BinarySearchTree:
         lst.extend(self._right.smaller(item))
         return lst
 
+    def minimum(self):
+        if self.is_empty():
+            return None
+        elif not self._left.is_empty():
+            return self._left.minimum()
+        return self._root
+
+    def _delete_root(self):
+        if self._left.is_empty() and self._right.is_empty():
+            self._root = None
+        if not self._left.is_empty():
+            self._root = self._left.maximum()
+            self._left._delete_root(self._left.maximum())
+        elif not self._right.is_empty():
+            self._root = self._right.minimum()
+            self._right._delete_root(self._right.minimum())
+
+    def delete(self, item: Any):
+        """
+        >>> bst = BinarySearchTree(13)
+        >>> right = BinarySearchTree(14)
+        >>> left = BinarySearchTree(11)
+        >>> bst._right = right
+        >>> bst._left = left
+        >>> bst.delete(14)
+        >>> bst.items()
+        [11, 13]
+        >>> bst.delete(11)
+        >>> bst.items()
+        [13]
+        >>> bst.delete(13)
+        >>> bst.items()
+        []
+        >>> bst = BinarySearchTree(13)
+        >>> left = BinarySearchTree(11)
+        >>> bst._left = left
+        >>> bst.delete(11)
+        >>> bst.items()
+        [13]
+        >>> bst.delete(13)
+        >>> bst.items()
+        []
+        >>> bst = BinarySearchTree(13)
+        >>> right = BinarySearchTree(14)
+        >>> bst._right = right
+        >>> bst.delete(14)
+        >>> bst.items()
+        [13]
+        >>> bst.delete(13)
+        >>> bst.items()
+        []
+        >>> bst = BinarySearchTree(13)
+        >>> bst.delete(13)
+        >>> bst.items()
+        []
+        >>> bst = BinarySearchTree(13)
+        >>> right = BinarySearchTree(14)
+        >>> left = BinarySearchTree(11)
+        >>> left._left = BinarySearchTree(10)
+        >>> left._right = BinarySearchTree(12)
+        >>> bst._right = right
+        >>> bst._left = left
+        >>> bst.items()
+        [10, 11, 12, 13, 14]
+        >>> bst.delete(13)
+        >>> bst.items()
+        [10, 11, 12, 14]
+        """
+        if self.is_empty():
+            pass
+        if self._root == item:
+            self._delete_root()
+        # elif item < self._root:
+        #     self._left.delete(item)
+        # else:
+        #     self._right.delete(item)
+        elif not self._left.is_empty() and not self._right.is_empty():
+            # if item < self._right._root:
+            #     self._left.delete(item)
+            # else:
+            #     self._right.delete(item)
+            if item < self._root:
+                self._left.delete(item)
+            else:
+                self._right.delete(item)
+        elif not self._left.is_empty():
+            if item <= self._left._root:
+                self._left.delete(item)
+        elif not self._right.is_empty():
+            if item >= self._right._root:
+                self._right.delete(item)
+
 
 if __name__ == '__main__':
     import doctest

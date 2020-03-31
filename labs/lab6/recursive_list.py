@@ -250,12 +250,16 @@ class RecursiveList:
         ...
         IndexError
         """
-        if self.is_empty():
+        if index <= -1:
             raise IndexError
         elif index == 0:
-            return self._pop_first()
+            t = self._first
+            self._first = item
+            self._rest = RecursiveList(t)
+        elif self._rest is None:
+            raise IndexError
         else:
-            return self._rest.pop(index - 1)
+            self._rest.insert(index - 1, item)
 
     def _pop_first(self) -> Any:
         """Remove and return the first item in this list.
@@ -278,10 +282,7 @@ class RecursiveList:
         if self.is_empty():
             self._first = item
         else:
-            t = self._first
-            r = self._rest
-            self._first = t
-            self._rest =
+            self._first.item, self._rest = item, self._first
 
     ###########################################################################
     # Additional Exercises
@@ -299,7 +300,34 @@ class RecursiveList:
         >>> str(lst.map(len))
         '5 -> 7'
         """
-        pass
+        if self._rest._first is None:
+            return RecursiveList([f(self._first)])
+        else:
+            return RecursiveList([f(self._first), self._rest.map(f)])
+
+    def __iter__(self) -> RecusriveListIterator:
+        """Return an iterator for this linked list.
+
+        It should be straightforward to initialize the iterator here
+        (see the class documentation below). Just remember to initialize
+        it to the first node in this linked list.
+        """
+        return RecusriveListIterator(self)
+
+
+class RecusriveListIterator:
+    _curr: Optional[Any]
+
+    def __init__(self, first_node: Optional[Any]) -> None:
+        """Initialize a new linked list iterator with the given node."""
+        self._curr = first_node._first
+
+    def __next__(self) -> Any:
+        if self._curr is None:
+            raise StopIteration
+        item = self._curr.item
+        self._curr = self._rest._first
+        return item
 
 
 if __name__ == '__main__':

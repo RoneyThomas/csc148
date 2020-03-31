@@ -117,7 +117,7 @@ def time_queue_lists() -> Tuple[List[int], List[float], List[float]]:
 if __name__ == '__main__':
     # time_queue()
     data = time_queue_lists()
-    # print(data)
+    print(data)
     plt.plot(data[0], data[1])
     plt.plot(data[0], data[2])
     plt.ylabel('Queue size')

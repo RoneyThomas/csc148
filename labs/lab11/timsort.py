@@ -72,7 +72,6 @@ def find_runs(lst: list) -> List[Tuple[int, int]]:
     >>> find_runs([10, 4, -2, 1])
     [(0, 1), (1, 2), (2, 4)]
     """
-    runs = []
 
     # Keep track of the start and end points of a run.
     run_start = 0
@@ -161,7 +160,25 @@ def find_runs2(lst: list) -> List[Tuple[int, int]]:
     # Hint: this is very similar to find_runs, except
     # you'll need to keep track of whether the "current run"
     # is ascending or descending.
-    pass
+
+    run_start = 0
+    run_end = 1
+    return_lst: List[Tuple[int, int]] = []
+    while run_end < len(lst):
+        # How can you tell if a run should continue?
+        #   (When you do, update run_end.)
+
+        # How can you tell if a run is over?
+        #   (When you do, update runs, run_start, and run_end.)
+        if lst[run_end] > lst[run_end - 1]:
+            run_end += 1
+        else:
+            return_lst.append((run_start, run_end))
+            run_start = run_end
+            run_end += 1
+        if run_end == len(lst):
+            return_lst.append((run_start, run_end))
+    return return_lst
 
 
 ###############################################################################
