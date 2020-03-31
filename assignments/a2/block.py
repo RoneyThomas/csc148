@@ -312,7 +312,6 @@ class Block:
                 return True
             return False
 
-
     def paint(self, colour: Tuple[int, int, int]) -> bool:
         """Change this Block's colour iff it is a leaf at a level of max_depth
         and its colour is different from <colour>.

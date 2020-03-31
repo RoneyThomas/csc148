@@ -50,7 +50,6 @@ def _block_to_squares(board: Block) -> List[Tuple[Tuple[int, int, int],
     The order of the squares does not matter.
     """
     # TODO: Implement me
-    # len(board.children) == 0
     if not board.children:
         return [(board.colour, board.position, board.size)]
     else:
